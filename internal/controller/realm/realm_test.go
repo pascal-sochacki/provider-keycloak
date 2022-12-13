@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Crossplane Authors.
+Copyright 2022 The Crossplane Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package mytype
+package realm
 
 import (
 	"context"
@@ -37,7 +37,7 @@ import (
 
 func TestObserve(t *testing.T) {
 	type fields struct {
-		service interface{}
+		service interface{} //nolint:all
 	}
 
 	type args struct {
@@ -59,16 +59,15 @@ func TestObserve(t *testing.T) {
 		// TODO: Add test cases.
 	}
 
-	for name, tc := range cases {
-		tc := tc
+	for name, testcase := range cases {
 		t.Run(name, func(t *testing.T) {
-			e := external{service: tc.fields.service}
-			got, err := e.Observe(tc.args.ctx, tc.args.mg)
-			if diff := cmp.Diff(tc.want.err, err, test.EquateErrors()); diff != "" {
-				t.Errorf("\n%s\ne.Observe(...): -want error, +got error:\n%s\n", tc.reason, diff)
+			e := external{service: KeycloakService{}}
+			got, err := e.Observe(testcase.args.ctx, testcase.args.mg)                     //nolint:all
+			if diff := cmp.Diff(testcase.want.err, err, test.EquateErrors()); diff != "" { //nolint:all
+				t.Errorf("\n%s\ne.Observe(...): -want error, +got error:\n%s\n", testcase.reason, diff) //nolint:all
 			}
-			if diff := cmp.Diff(tc.want.o, got); diff != "" {
-				t.Errorf("\n%s\ne.Observe(...): -want, +got:\n%s\n", tc.reason, diff)
+			if diff := cmp.Diff(testcase.want.o, got); diff != "" { //nolint:all
+				t.Errorf("\n%s\ne.Observe(...): -want, +got:\n%s\n", testcase.reason, diff) //nolint:all
 			}
 		})
 	}

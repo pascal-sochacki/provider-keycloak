@@ -1,0 +1,1 @@
+helm install keycloak codecentric/keycloakx --values ./values.yaml

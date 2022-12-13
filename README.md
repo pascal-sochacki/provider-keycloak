@@ -1,17 +1,34 @@
-# provider-template
+# provider-keycloak
 
-`provider-template` is a minimal [Crossplane](https://crossplane.io/) Provider
-that is meant to be used as a template for implementing new Providers. It comes
-with the following features that are meant to be refactored:
+## Getting Started
 
-- A `ProviderConfig` type that only points to a credentials `Secret`.
-- A `MyType` resource type that serves as an example managed resource.
-- A managed resource controller that reconciles `MyType` objects and simply
-  prints their configuration in its `Observe` method.
+```shell
+cat << EOF > values.yaml
+command:
+- "/opt/keycloak/bin/kc.sh"
+- "start"
+- "--http-enabled=true"
+- "--http-port=8080"
+- "--hostname-strict=false"
+- "--hostname-strict-https=false"
+  extraEnv: |
+- name: KEYCLOAK_ADMIN
+  value: admin
+- name: KEYCLOAK_ADMIN_PASSWORD
+  value: admin
+- name: JAVA_OPTS_APPEND
+  value: >-
+  -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+  EOF
+```
+1. `helm install keycloak codecentric/keycloakx --values ./values.yaml`
+1. `kubectl --namespace default port-forward pod/keycloak-0 8080`
+1. Create the admin user in the ui http://localhost:8080/auth/ to work with the examples use admin;admin
+
 
 ## Developing
 
-1. Use this repository as a template to create a new one.
+1. Use this repository as a keycloak to create a new one.
 1. Run `make submodules` to initialize the "build" Make submodule we use for CI/CD.
 1. Rename the provider by running the follwing command:
 ```

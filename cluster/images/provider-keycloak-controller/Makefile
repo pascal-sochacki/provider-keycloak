@@ -6,7 +6,7 @@ include ../../../build/makelib/common.mk
 
 # ====================================================================================
 #  Options
-IMAGE = $(BUILD_REGISTRY)/provider-template-controller-$(ARCH)
+IMAGE = $(BUILD_REGISTRY)/provider-keycloak-controller-$(ARCH)
 include ../../../build/makelib/image.mk
 
 # ====================================================================================
