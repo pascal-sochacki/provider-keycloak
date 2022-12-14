@@ -1,29 +1,38 @@
 # provider-keycloak
 
+Hey you found my idea to create a crossplane keycloak provider! The idea is to use the kubernetes control plane instead of other tools like terraform
+
 ## Getting Started
 
+Do you want to see this in action?
+
+**First create a Kubernetes Cluster and install:**
+* crossplane
+* keycloak
+
+For keycloak we will use the codecentric helm chart with values to configure the admin user (see `starter` folder). 
+
+For crossplane just run the following commands:
 ```shell
-cat << EOF > values.yaml
-command:
-- "/opt/keycloak/bin/kc.sh"
-- "start"
-- "--http-enabled=true"
-- "--http-port=8080"
-- "--hostname-strict=false"
-- "--hostname-strict-https=false"
-  extraEnv: |
-- name: KEYCLOAK_ADMIN
-  value: admin
-- name: KEYCLOAK_ADMIN_PASSWORD
-  value: admin
-- name: JAVA_OPTS_APPEND
-  value: >-
-  -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-  EOF
+kubectl create namespace crossplane-system
+helm repo add crossplane-stable https://charts.crossplane.io/stable
+helm repo update
+
+helm install crossplane --namespace crossplane-system crossplane-stable/crossplane
 ```
-1. `helm install keycloak codecentric/keycloakx --values ./values.yaml`
-1. `kubectl --namespace default port-forward pod/keycloak-0 8080`
-1. Create the admin user in the ui http://localhost:8080/auth/ to work with the examples use admin;admin
+
+**Install this provider**
+
+Just apply this yaml to your Cluster
+
+```yaml
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-keycloak
+spec:
+  package: "pascal-sochacki/provider-keycloak:main"
+```
 
 
 ## Developing
