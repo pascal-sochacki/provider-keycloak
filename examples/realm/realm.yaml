@@ -1,9 +1,6 @@
 apiVersion: realmroles.keycloak.crossplane.io/v1alpha1
 kind: Realm
 metadata:
-  name: vault
+  name: example
 spec:
   forProvider: {}
-  writeConnectionSecretToRef:
-    name: realm
-    namespace: default

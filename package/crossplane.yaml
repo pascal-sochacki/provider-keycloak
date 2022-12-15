@@ -11,4 +11,4 @@ metadata:
 
 spec:
   controller:
-    image: ghcr.io/pascal-sochacki/provider-keycloak-controller-amd64:VERSION
+    image: ghcr.io/pascal-sochacki/provider-keycloak-controller:VERSION

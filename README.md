@@ -31,9 +31,35 @@ kind: Provider
 metadata:
   name: provider-keycloak
 spec:
-  package: "ghcr.io/pascal-sochacki/provider-keycloak-controller-arm64:master"
+  package: "ghcr.io/pascal-sochacki/provider-keycloak:master"
 ```
 
+**Create a Provider Config**
+
+First we need to create a kubernetes secret for the keycloak user.
+In the `examples/provider` folder you will find a script which creates this secret with the username and password.
+After the Secret is installed you can apply the `config.yaml` in the same folder as the script.
+
+**Create a Realm**
+
+Now you should be able to create a Keycloak Realm! Just apply the following yaml:
+
+```
+apiVersion: realmroles.keycloak.crossplane.io/v1alpha1
+kind: Realm
+metadata:
+  name: example
+spec:
+  forProvider: {}
+```
+
+If everything work you should see your Realm in a Ready and Sync State:
+
+```
+# kubectl get Realm
+NAME      READY   SYNCED   EXTERNAL-NAME   AGE
+example   True    True     example         3s
+```
 
 ## Developing
 
