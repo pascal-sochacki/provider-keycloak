@@ -36,10 +36,10 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/crossplane/provider-keycloak/apis"
-	"github.com/crossplane/provider-keycloak/apis/v1alpha1"
-	keycloak "github.com/crossplane/provider-keycloak/internal/controller"
-	"github.com/crossplane/provider-keycloak/internal/controller/features"
+	"github.com/pascal-sochacki/provider-keycloak/apis"
+	"github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
+	keycloak "github.com/pascal-sochacki/provider-keycloak/internal/controller"
+	"github.com/pascal-sochacki/provider-keycloak/internal/controller/features"
 )
 
 func main() {

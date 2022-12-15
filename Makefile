@@ -1,7 +1,7 @@
 # ====================================================================================
 # Setup Project
 PROJECT_NAME := provider-keycloak
-PROJECT_REPO := github.com/crossplane/$(PROJECT_NAME)
+PROJECT_REPO := github.com/pascal-sochacki/$(PROJECT_NAME)
 
 PLATFORMS ?= linux_amd64 linux_arm64
 -include build/makelib/common.mk
@@ -26,7 +26,7 @@ KIND_NODE_IMAGE_TAG ?= v1.23.4
 -include build/makelib/k8s_tools.mk
 
 # Setup Images
-DOCKER_REGISTRY ?= crossplane
+DOCKER_REGISTRY ?= ghcr.io/pascal-sochacki
 IMAGES = $(PROJECT_NAME) $(PROJECT_NAME)-controller
 -include build/makelib/image.mk
 

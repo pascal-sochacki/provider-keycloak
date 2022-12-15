@@ -1,4 +1,4 @@
-module github.com/crossplane/provider-keycloak
+module github.com/pascal-sochacki/provider-keycloak
 
 go 1.19
 

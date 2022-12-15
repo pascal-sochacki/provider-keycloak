@@ -31,7 +31,7 @@ kind: Provider
 metadata:
   name: provider-keycloak
 spec:
-  package: "pascal-sochacki/provider-keycloak:main"
+  package: "ghcr.io/pascal-sochacki/provider-keycloak-controller-arm64:master"
 ```
 
 

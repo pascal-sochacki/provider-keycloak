@@ -20,8 +20,8 @@ package apis
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	realmRolesv1alpha1 "github.com/crossplane/provider-keycloak/apis/realmroles/v1alpha1"
-	keycloakv1alpha1 "github.com/crossplane/provider-keycloak/apis/v1alpha1"
+	realmRolesv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/realmroles/v1alpha1"
+	keycloakv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 )
 
 func init() {

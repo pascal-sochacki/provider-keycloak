@@ -3,12 +3,12 @@ kind: Provider
 metadata:
   name: provider-keycloak
   annotations:
-    meta.crossplane.io/maintainer: Crossplane Maintainers <info@crossplane.io>
-    meta.crossplane.io/source: github.com/crossplane/provider-keycloak
+    meta.crossplane.io/maintainer: Pascal Sochacki <pascal@sochacki.dev>
+    meta.crossplane.io/source: github.com/pascal-sochacki/provider-keycloak
     meta.crossplane.io/license: Apache-2.0
     meta.crossplane.io/description: |
       A keycloak that can be used to create Crossplane providers.
 
 spec:
   controller:
-    image: DOCKER_REGISTRY/provider-keycloak-controller:VERSION
+    image: ghcr.io/pascal-sochacki/provider-keycloak-controller-amd64:VERSION

@@ -35,10 +35,10 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/crossplane/provider-keycloak/apis/realmroles/v1alpha1"
-	apisv1alpha1 "github.com/crossplane/provider-keycloak/apis/v1alpha1"
-	kc "github.com/crossplane/provider-keycloak/internal/controller/client"
-	"github.com/crossplane/provider-keycloak/internal/controller/features"
+	"github.com/pascal-sochacki/provider-keycloak/apis/realmroles/v1alpha1"
+	apisv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
+	kc "github.com/pascal-sochacki/provider-keycloak/internal/controller/client"
+	"github.com/pascal-sochacki/provider-keycloak/internal/controller/features"
 )
 
 const (

@@ -18,10 +18,10 @@ package controller
 
 import (
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
-	"github.com/crossplane/provider-keycloak/internal/controller/realm"
+	"github.com/pascal-sochacki/provider-keycloak/internal/controller/realm"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/crossplane/provider-keycloak/internal/controller/config"
+	"github.com/pascal-sochacki/provider-keycloak/internal/controller/config"
 )
 
 // Setup creates all Keycloak controllers with the supplied logger and adds them to
