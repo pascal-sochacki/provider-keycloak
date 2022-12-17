@@ -1,0 +1,117 @@
+apiVersion: realmroles.keycloak.crossplane.io/v1alpha1
+kind: Realm
+metadata:
+  name: max-example
+spec:
+  forProvider:
+    enabled: true
+    displayName: Display Name
+    displayNameHtml: HTML Display Name
+    userManagedAccess: true
+    attributes:
+      test1: test2
+
+    registrationAllowed: true
+    registrationEmailAsUsername: true
+    resetPasswordAllowed: true
+    editUsernameAllowed: true
+    rememberMe: true
+    verifyEmail: true
+    loginWithEmailAllowed: true
+    duplicateEmailsAllowed: false
+    SSLRequired: all
+
+    defaultSignatureAlgorithm: HS256
+    revokeRefreshToken: true
+    refreshTokenMaxReuse: 10
+
+    SSOSessionIdleTimeout: 10
+    SSOSessionMaxLifespan: 10
+    SSOSessionMaxLifespanRememberMe: 10
+    OfflineSessionIdleTimeout: 10
+    OfflineSessionMaxLifespan: 10
+    OfflineSessionMaxLifespanEnabled: true
+    AccessTokenLifespan: 10
+    AccessTokenLifespanForImplicitFlow: 10
+    AccessCodeLifespan: 10
+    AccessCodeLifespanLogin: 10
+    AccessCodeLifespanUserAction: 10
+    ActionTokenGeneratedByUserLifespan: 10
+    ActionTokenGeneratedByAdminLifespan: 10
+
+    smtpCredentials:
+      source: Secret
+      secretRef:
+        name: smtp-credentials
+        namespace: default
+        key: credentials
+
+    SupportedLocales:
+      - "de"
+    defaultLocale: "de"
+    internationalizationEnabled: true
+
+    headers:
+      XFrameOptions: XFrameOptions
+      ContentSecurityPolicy: ContentSecurityPolicy
+      ContentSecurityPolicyReportOnly: ContentSecurityPolicyReportOnly
+      XContentTypeOptions: XContentTypeOptions
+      XRobotsTag: XRobotsTag
+      XXssProtection: XXssProtection
+      StrictTransportSecurity: StrictTransportSecurity
+
+    bruteForceDetection:
+      PermanentLockout: false
+      MaxLoginFailures: 25
+      WaitIncrementSeconds: 65
+      QuickLoginCheckMilliSeconds: 1005
+      MinimumQuickLoginWaitSeconds: 56
+      MaxFailureWaitSeconds: 905
+      FailureResetTimeSeconds: 5
+
+    passwordPolicy: length(12)
+
+    BrowserFlow: browser
+    RegistrationFlow: registration
+    DirectGrantFlow: direct grant
+    ResetCredentialsFlow: reset credentials
+    ClientAuthenticationFlow: clients
+    DockerAuthenticationFlow: docker auth
+
+    OTPPolicy:
+      Type: hotp
+      Algorithm: HmacSHA512
+      Digits: 8
+      InitialCounter: 3
+      LookAheadWindow: 4
+      Period: 24
+
+    WebAuthnPolicy:
+      RelyingPartyEntityName: keycloak2
+      RelyingPartyId: 123a
+      SignatureAlgorithms:
+       - RS1
+       - ES512
+      AttestationConveyancePreference: none
+      AuthenticatorAttachment: cross-platform
+      RequireResidentKey: "No"
+      UserVerificationRequirement: discourage
+      CreateTimeout: 10
+      AvoidSameAuthenticatorRegister: true
+      AcceptableAaguids:
+        - "asdasldjasld"
+
+    WebAuthnPasswordlessPolicy:
+      RelyingPartyEntityName: keycloak3
+      RelyingPartyId: 1234a
+      SignatureAlgorithms:
+        - RS1
+      AttestationConveyancePreference: indirect
+      AuthenticatorAttachment: plattform
+      RequireResidentKey: "Yes"
+      UserVerificationRequirement: preferred
+      CreateTimeout: 12
+      AvoidSameAuthenticatorRegister: false
+      AcceptableAaguids:
+        - "asdasldjasld2"
+

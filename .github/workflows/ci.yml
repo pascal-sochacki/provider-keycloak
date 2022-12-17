@@ -311,6 +311,7 @@ jobs:
           GIT_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Promote Artifacts in S3 and Docker Hub
+        if: contains('refs/heads/main', github.ref) || startsWith(github.ref, 'release-')
         run: make promote
         env:
           BRANCH_NAME: main

@@ -73,7 +73,21 @@ dev: $(KIND) $(KUBECTL)
 	@$(KUBECTL) apply -k https://github.com/crossplane/crossplane//cluster?ref=master
 	@$(INFO) Installing Provider Keycloak CRDs
 	@$(KUBECTL) apply -R -f package/crds
-	@$(INFO) Starting Provider Keycloak controllers
+	@$(INFO) Install Keycloak
+	@helm install keycloak codecentric/keycloakx --values starter/values.yaml
+	@$(KUBECTL) create ns crossplane-system
+	@$(INFO) Create keycloak secret
+	@$(KUBECTL) create secret generic -n crossplane-system keycloak-credentials --from-file=credentials=./examples/provider/credentials_dev.json
+	@$(KUBECTL) apply -f ./examples/provider/config.yaml
+	@sleep 10
+	@$(KUBECTL) wait --for=condition=ready pod -l app.kubernetes.io/instance=keycloak --timeout=-1s
+	@$(KUBECTL) port-forward services/keycloak-keycloakx-http 8081:80
+
+
+dev-reload: $(KUBECTL)
+	make generate
+	@$(KUBECTL) apply -R -f package/crds
+
 
 dev-clean: $(KIND) $(KUBECTL)
 	@$(INFO) Deleting kind cluster
