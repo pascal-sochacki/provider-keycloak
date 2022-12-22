@@ -60,6 +60,10 @@ If everything work you should see your Realm in a Ready and Sync State:
 NAME      READY   SYNCED   EXTERNAL-NAME   AGE
 example   True    True     example         3s
 ```
+## Warning
+
+This is far from production ready. I'm not an expert in keycloak, golang or crossplane. I hope to learn while doing this
+project. Any help is highly appreciated.
 
 ## Developing
 
