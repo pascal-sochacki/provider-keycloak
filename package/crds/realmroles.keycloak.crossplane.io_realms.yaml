@@ -63,6 +63,443 @@ spec:
                 type: string
               forProvider:
                 description: RealmParameters are the configurable fields of a Realm.
+                  A realm manages a set of users, credentials, roles, and groups.
+                  A user belongs to and logs into a realm. Realms are isolated from
+                  one another and can only manage and authenticate the users that
+                  they control. See https://www.keycloak.org/docs/latest/server admin/index.html#core-concepts-and-terms
+                properties:
+                  AccessCodeLifespan:
+                    default: 60
+                    type: integer
+                  AccessCodeLifespanLogin:
+                    default: 1800
+                    type: integer
+                  AccessCodeLifespanUserAction:
+                    default: 300
+                    type: integer
+                  AccessTokenLifespan:
+                    default: 300
+                    type: integer
+                  AccessTokenLifespanForImplicitFlow:
+                    default: 900
+                    type: integer
+                  ActionTokenGeneratedByAdminLifespan:
+                    default: 43200
+                    type: integer
+                  ActionTokenGeneratedByUserLifespan:
+                    default: 300
+                    type: integer
+                  BrowserFlow:
+                    default: browser
+                    type: string
+                  ClientAuthenticationFlow:
+                    default: clients
+                    type: string
+                  DirectGrantFlow:
+                    default: direct grant
+                    type: string
+                  DockerAuthenticationFlow:
+                    default: docker auth
+                    type: string
+                  OTPPolicy:
+                    default:
+                      Algorithm: HmacSHA1
+                      Digits: 6
+                      InitialCounter: 0
+                      LookAheadWindow: 1
+                      Period: 30
+                      Type: totp
+                    properties:
+                      Algorithm:
+                        enum:
+                        - HmacSHA1
+                        - HmacSHA256
+                        - HmacSHA512
+                        type: string
+                      Digits:
+                        enum:
+                        - 6
+                        - 8
+                        type: integer
+                      InitialCounter:
+                        type: integer
+                      LookAheadWindow:
+                        type: integer
+                      Period:
+                        type: integer
+                      Type:
+                        enum:
+                        - totp
+                        - hotp
+                        type: string
+                    required:
+                    - Algorithm
+                    - Digits
+                    - InitialCounter
+                    - LookAheadWindow
+                    - Period
+                    - Type
+                    type: object
+                  OfflineSessionIdleTimeout:
+                    default: 2592000
+                    type: integer
+                  OfflineSessionMaxLifespan:
+                    default: 5184000
+                    type: integer
+                  OfflineSessionMaxLifespanEnabled:
+                    default: false
+                    type: boolean
+                  RegistrationFlow:
+                    default: registration
+                    type: string
+                  ResetCredentialsFlow:
+                    default: reset credentials
+                    type: string
+                  SSLRequired:
+                    default: external
+                    description: 'Can be one of following values: ''none, ''external''
+                      or ''all'''
+                    enum:
+                    - none
+                    - external
+                    - all
+                    type: string
+                  SSOSessionIdleTimeout:
+                    default: 1800
+                    description: SSO Session Idle in seconds
+                    type: integer
+                  SSOSessionMaxLifespan:
+                    default: 36000
+                    description: SSO Session Max Lifespan in seconds
+                    type: integer
+                  SSOSessionMaxLifespanRememberMe:
+                    default: 0
+                    type: integer
+                  SupportedLocales:
+                    items:
+                      type: string
+                    type: array
+                  WebAuthnPasswordlessPolicy:
+                    default:
+                      AttestationConveyancePreference: not specified
+                      AuthenticatorAttachment: not specified
+                      AvoidSameAuthenticatorRegister: false
+                      CreateTimeout: 0
+                      RelyingPartyEntityName: keycloak
+                      RelyingPartyId: ""
+                      RequireResidentKey: not specified
+                      SignatureAlgorithms:
+                      - ES256
+                      UserVerificationRequirement: not specified
+                    properties:
+                      AcceptableAaguids:
+                        items:
+                          type: string
+                        type: array
+                      AttestationConveyancePreference:
+                        enum:
+                        - not specified
+                        - none
+                        - indirect
+                        - direct
+                        type: string
+                      AuthenticatorAttachment:
+                        enum:
+                        - not specified
+                        - plattform
+                        - cross-platform
+                        type: string
+                      AvoidSameAuthenticatorRegister:
+                        type: boolean
+                      CreateTimeout:
+                        description: The Timeout in seconds
+                        type: integer
+                      RelyingPartyEntityName:
+                        type: string
+                      RelyingPartyId:
+                        type: string
+                      RequireResidentKey:
+                        enum:
+                        - not specified
+                        - "Yes"
+                        - "No"
+                        type: string
+                      SignatureAlgorithms:
+                        items:
+                          enum:
+                          - ES256
+                          - ES384
+                          - ES512
+                          - RS256
+                          - RS384
+                          - RS512
+                          - RS1
+                          type: string
+                        type: array
+                      UserVerificationRequirement:
+                        enum:
+                        - not specified
+                        - required
+                        - preferred
+                        - discourage
+                        type: string
+                    type: object
+                  WebAuthnPolicy:
+                    default:
+                      AttestationConveyancePreference: not specified
+                      AuthenticatorAttachment: not specified
+                      AvoidSameAuthenticatorRegister: false
+                      CreateTimeout: 0
+                      RelyingPartyEntityName: keycloak
+                      RelyingPartyId: ""
+                      RequireResidentKey: not specified
+                      SignatureAlgorithms:
+                      - ES256
+                      UserVerificationRequirement: not specified
+                    properties:
+                      AcceptableAaguids:
+                        items:
+                          type: string
+                        type: array
+                      AttestationConveyancePreference:
+                        enum:
+                        - not specified
+                        - none
+                        - indirect
+                        - direct
+                        type: string
+                      AuthenticatorAttachment:
+                        enum:
+                        - not specified
+                        - plattform
+                        - cross-platform
+                        type: string
+                      AvoidSameAuthenticatorRegister:
+                        type: boolean
+                      CreateTimeout:
+                        description: The Timeout in seconds
+                        type: integer
+                      RelyingPartyEntityName:
+                        type: string
+                      RelyingPartyId:
+                        type: string
+                      RequireResidentKey:
+                        enum:
+                        - not specified
+                        - "Yes"
+                        - "No"
+                        type: string
+                      SignatureAlgorithms:
+                        items:
+                          enum:
+                          - ES256
+                          - ES384
+                          - ES512
+                          - RS256
+                          - RS384
+                          - RS512
+                          - RS1
+                          type: string
+                        type: array
+                      UserVerificationRequirement:
+                        enum:
+                        - not specified
+                        - required
+                        - preferred
+                        - discourage
+                        type: string
+                    type: object
+                  attributes:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  bruteForceDetection:
+                    properties:
+                      FailureResetTimeSeconds:
+                        type: integer
+                      MaxFailureWaitSeconds:
+                        default: 900
+                        type: integer
+                      MaxLoginFailures:
+                        default: 30
+                        type: integer
+                      MinimumQuickLoginWaitSeconds:
+                        default: 60
+                        type: integer
+                      PermanentLockout:
+                        default: false
+                        type: boolean
+                      QuickLoginCheckMilliSeconds:
+                        default: 1000
+                        format: int64
+                        type: integer
+                      WaitIncrementSeconds:
+                        default: 60
+                        type: integer
+                    required:
+                    - FailureResetTimeSeconds
+                    - MaxFailureWaitSeconds
+                    - MaxLoginFailures
+                    - MinimumQuickLoginWaitSeconds
+                    - PermanentLockout
+                    - QuickLoginCheckMilliSeconds
+                    - WaitIncrementSeconds
+                    type: object
+                  defaultLocale:
+                    type: string
+                  defaultSignatureAlgorithm:
+                    default: RS256
+                    enum:
+                    - RS256
+                    - ES256
+                    - ES384
+                    - ES512
+                    - HS256
+                    - HS384
+                    - HS512
+                    - RS256
+                    - RS384
+                    - RS512
+                    - PS256
+                    - PS384
+                    - RS512
+                    type: string
+                  displayName:
+                    type: string
+                  displayNameHtml:
+                    type: string
+                  duplicateEmailsAllowed:
+                    default: false
+                    type: boolean
+                  editUsernameAllowed:
+                    default: false
+                    type: boolean
+                  enabled:
+                    default: true
+                    description: Boolean representing if realm is enabled or not
+                    type: boolean
+                  headers:
+                    default:
+                      ContentSecurityPolicy: frame-src 'self'; frame-ancestors 'self';
+                        object-src 'none';
+                      ContentSecurityPolicyReportOnly: ""
+                      StrictTransportSecurity: max-age=31536000; includeSubDomains
+                      XContentTypeOptions: nosniff
+                      XFrameOptions: SAMEORIGIN
+                      XRobotsTag: none
+                      XXssProtection: 1; mode=block
+                    properties:
+                      ContentSecurityPolicy:
+                        type: string
+                      ContentSecurityPolicyReportOnly:
+                        type: string
+                      StrictTransportSecurity:
+                        type: string
+                      XContentTypeOptions:
+                        type: string
+                      XFrameOptions:
+                        type: string
+                      XRobotsTag:
+                        type: string
+                      XXssProtection:
+                        type: string
+                    required:
+                    - ContentSecurityPolicy
+                    - ContentSecurityPolicyReportOnly
+                    - StrictTransportSecurity
+                    - XContentTypeOptions
+                    - XFrameOptions
+                    - XRobotsTag
+                    - XXssProtection
+                    type: object
+                  internationalizationEnabled:
+                    default: false
+                    type: boolean
+                  loginWithEmailAllowed:
+                    default: true
+                    type: boolean
+                  passwordPolicy:
+                    type: string
+                  refreshTokenMaxReuse:
+                    default: 0
+                    type: integer
+                  registrationAllowed:
+                    default: false
+                    type: boolean
+                  registrationEmailAsUsername:
+                    default: false
+                    type: boolean
+                  rememberMe:
+                    default: false
+                    type: boolean
+                  resetPasswordAllowed:
+                    default: false
+                    type: boolean
+                  revokeRefreshToken:
+                    default: false
+                    type: boolean
+                  smtpCredentials:
+                    description: SmtpCredentials are the smtp credentials for a Realm
+                    properties:
+                      env:
+                        description: Env is a reference to an environment variable
+                          that contains credentials that must be used to connect to
+                          the provider.
+                        properties:
+                          name:
+                            description: Name is the name of an environment variable.
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      fs:
+                        description: Fs is a reference to a filesystem location that
+                          contains credentials that must be used to connect to the
+                          provider.
+                        properties:
+                          path:
+                            description: Path is a filesystem path.
+                            type: string
+                        required:
+                        - path
+                        type: object
+                      secretRef:
+                        description: A SecretRef is a reference to a secret key that
+                          contains the credentials that must be used to connect to
+                          the provider.
+                        properties:
+                          key:
+                            description: The key to select.
+                            type: string
+                          name:
+                            description: Name of the secret.
+                            type: string
+                          namespace:
+                            description: Namespace of the secret.
+                            type: string
+                        required:
+                        - key
+                        - name
+                        - namespace
+                        type: object
+                      source:
+                        description: Source of the provider credentials.
+                        enum:
+                        - None
+                        - Secret
+                        - InjectedIdentity
+                        - Environment
+                        - Filesystem
+                        type: string
+                    required:
+                    - source
+                    type: object
+                  userManagedAccess:
+                    default: false
+                    type: boolean
+                  verifyEmail:
+                    default: false
+                    type: boolean
                 type: object
               providerConfigRef:
                 default:
