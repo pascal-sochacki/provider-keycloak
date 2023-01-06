@@ -20,7 +20,6 @@ package apis
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	realmRolesv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/realmroles/v1alpha1"
 	keycloakv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 )
 
@@ -28,7 +27,6 @@ func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
 	AddToSchemes = append(AddToSchemes,
 		keycloakv1alpha1.SchemeBuilder.AddToScheme,
-		realmRolesv1alpha1.SchemeBuilder.AddToScheme,
 	)
 }
 

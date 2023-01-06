@@ -33,7 +33,6 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/pascal-sochacki/provider-keycloak/apis/realmroles/v1alpha1"
 	apisv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 	kc "github.com/pascal-sochacki/provider-keycloak/internal/controller/client"
 	"github.com/pascal-sochacki/provider-keycloak/internal/controller/features"
@@ -70,7 +69,7 @@ var (
 
 // Setup adds a controller that reconciles Realm managed resources.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
-	name := managed.ControllerName(v1alpha1.RealmGroupKind)
+	name := managed.ControllerName(apisv1alpha1.RealmGroupKind)
 
 	cps := []managed.ConnectionPublisher{managed.NewAPISecretPublisher(mgr.GetClient(), mgr.GetScheme())}
 	if o.Features.Enabled(features.EnableAlphaExternalSecretStores) {
@@ -78,7 +77,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	}
 
 	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.RealmGroupVersionKind),
+		resource.ManagedKind(apisv1alpha1.RealmGroupVersionKind),
 		managed.WithExternalConnecter(&connector{
 			kube:         mgr.GetClient(),
 			usage:        resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
@@ -90,7 +89,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o.ForControllerRuntime()).
-		For(&v1alpha1.Realm{}).
+		For(&apisv1alpha1.Realm{}).
 		Complete(ratelimiter.NewReconciler(name, r, o.GlobalRateLimiter))
 }
 
@@ -103,7 +102,7 @@ type connector struct {
 }
 
 func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.ExternalClient, error) {
-	cr, ok := mg.(*v1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Realm)
 	if !ok {
 		return nil, errors.New(errNotRealm)
 	}
@@ -142,7 +141,7 @@ type external struct {
 }
 
 func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
-	cr, ok := mg.(*v1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Realm)
 	if !ok {
 		return managed.ExternalObservation{}, errors.New(errNotRealm)
 	}
@@ -180,7 +179,7 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	}, nil
 }
 
-func (c *external) getSmtpConfig(ctx context.Context, cr *v1alpha1.Realm) (*v1alpha1.SmtpConfig, error) {
+func (c *external) getSmtpConfig(ctx context.Context, cr *apisv1alpha1.Realm) (*apisv1alpha1.SmtpConfig, error) {
 	cd := cr.Spec.ForProvider.SmtpCredentials
 
 	if cd == nil {
@@ -191,7 +190,7 @@ func (c *external) getSmtpConfig(ctx context.Context, cr *v1alpha1.Realm) (*v1al
 		return nil, err
 	}
 
-	var config v1alpha1.SmtpConfig
+	var config apisv1alpha1.SmtpConfig
 	err = json.Unmarshal(data, &config)
 	if err != nil {
 		return nil, err
@@ -200,7 +199,7 @@ func (c *external) getSmtpConfig(ctx context.Context, cr *v1alpha1.Realm) (*v1al
 }
 
 func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
-	cr, ok := mg.(*v1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Realm)
 	if !ok {
 		return managed.ExternalCreation{}, errors.New(errNotRealm)
 	}
@@ -226,7 +225,7 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
-	cr, ok := mg.(*v1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Realm)
 	if !ok {
 		return managed.ExternalUpdate{}, errors.New(errNotRealm)
 	}
@@ -249,7 +248,7 @@ func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
-	_, ok := mg.(*v1alpha1.Realm)
+	_, ok := mg.(*apisv1alpha1.Realm)
 	if !ok {
 		return errors.New(errNotRealm)
 	}
