@@ -1,4 +1,4 @@
-apiVersion: realmroles.keycloak.crossplane.io/v1alpha1
+apiVersion: keycloak.crossplane.io/v1alpha1
 kind: Realm
 metadata:
   name: max-example

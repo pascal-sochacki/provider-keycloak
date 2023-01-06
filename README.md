@@ -45,7 +45,7 @@ After the Secret is installed you can apply the `config.yaml` in the same folder
 Now you should be able to create a Keycloak Realm! Just apply the following yaml:
 
 ```
-apiVersion: realmroles.keycloak.crossplane.io/v1alpha1
+apiVersion: keycloak.crossplane.io/v1alpha1
 kind: Realm
 metadata:
   name: example

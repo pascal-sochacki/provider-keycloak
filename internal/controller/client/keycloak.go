@@ -6,7 +6,7 @@ import (
 
 	"github.com/Nerzal/gocloak/v12"
 
-	"github.com/pascal-sochacki/provider-keycloak/apis/realmroles/v1alpha1"
+	"github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 )
 
 type KeycloakConfig struct {
