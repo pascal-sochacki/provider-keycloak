@@ -28,6 +28,8 @@ import (
 // ClientParameters are the configurable fields of a Client.
 type ClientParameters struct {
 	Realm string `json:"Realm"`
+	// +kubebuilder:validation:Enum=saml;openid-connect
+	Protocol string `json:"Protocol"`
 }
 
 // ClientObservation are the observable fields of a Client.

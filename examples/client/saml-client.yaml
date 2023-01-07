@@ -5,3 +5,7 @@ metadata:
 spec:
   forProvider:
     Realm: example
+    Protocol: saml
+  writeConnectionSecretToRef:
+    name: saml-example-secret
+    namespace: default

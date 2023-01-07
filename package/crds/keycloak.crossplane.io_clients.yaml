@@ -64,9 +64,15 @@ spec:
               forProvider:
                 description: ClientParameters are the configurable fields of a Client.
                 properties:
+                  Protocol:
+                    enum:
+                    - saml
+                    - openid-connect
+                    type: string
                   Realm:
                     type: string
                 required:
+                - Protocol
                 - Realm
                 type: object
               providerConfigRef:

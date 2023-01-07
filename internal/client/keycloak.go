@@ -92,30 +92,31 @@ func (c KeycloakClient) DeleteRealm(name string) error {
 	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
 }
 
-func (c KeycloakClient) ClientExists(realm string, id string) (bool, resourceUpToDate bool, err error) {
+func (c KeycloakClient) GetClient(realm string, id string) (*gocloak.Client, error) {
 	var token *gocloak.JWT
+	var err error
 	token, err = c.loginAdmin()
 	if err != nil {
-		return false, false, err
+		return nil, err
 
 	}
-	var _ *gocloak.Client
-	_, err = c.client.GetClient(c.ctx, token.AccessToken, realm, id)
-	if err != nil {
-		return false, false, err
-	}
-	return true, true, nil
+	var client *gocloak.Client
+	client, err = c.client.GetClient(c.ctx, token.AccessToken, realm, id)
+	return client, err
 }
 
-func (c KeycloakClient) CreateClient(realm string, id string) error {
+func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.ClientParameters) (*string, error) {
 	var token, err = c.loginAdmin()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = c.client.CreateClient(c.ctx, token.AccessToken, realm, gocloak.Client{
-		ID: &id,
-	})
-	return err
+	newClient := gocloak.Client{
+		ClientID: &id,
+		Protocol: &client.Protocol,
+	}
+	var createdId string
+	createdId, err = c.client.CreateClient(c.ctx, token.AccessToken, realm, newClient)
+	return &createdId, err
 }
 
 func (c KeycloakClient) DeleteClient(realm string, id string) error {

@@ -21,6 +21,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/Nerzal/gocloak/v12"
+	"github.com/crossplane/crossplane-runtime/pkg/meta"
+
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	kc "github.com/pascal-sochacki/provider-keycloak/internal/client"
 
@@ -151,20 +154,32 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{}, errors.New(errNotClient)
 	}
 
-	resourceExists, resourceUpToDate, err := c.service.KeycloakClient.ClientExists(cr.Spec.ForProvider.Realm, cr.GetName())
+	var client *gocloak.Client
+	client, err := c.service.KeycloakClient.GetClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr))
+
 	if err != nil {
 		return managed.ExternalObservation{ //nolint:all
 			ResourceExists: false,
 		}, nil
 	}
 
+	var resourceUpToDate = *client.Protocol == cr.Spec.ForProvider.Protocol
+
 	cr.Status.SetConditions(xpv1.Available())
+
+	details := managed.ConnectionDetails{}
+
+	if client.Secret != nil {
+		details = managed.ConnectionDetails{
+			"secret": []byte(*client.Secret),
+		}
+	}
 
 	return managed.ExternalObservation{
 		// Return false when the external resource does not exist. This lets
 		// the managed resource reconciler know that it needs to call Create to
 		// (re)create the resource, or that it has successfully been deleted.
-		ResourceExists: resourceExists,
+		ResourceExists: true,
 
 		// Return false when the external resource exists, but it not up to date
 		// with the desired managed resource state. This lets the managed
@@ -173,7 +188,7 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 		// Return any details that may be required to connect to the external
 		// resource. These will be stored as the connection secret.
-		ConnectionDetails: managed.ConnectionDetails{},
+		ConnectionDetails: details,
 	}, nil
 }
 
@@ -183,11 +198,13 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalCreation{}, errors.New(errNotClient)
 	}
 
-	err := c.service.KeycloakClient.CreateClient(cr.Spec.ForProvider.Realm, cr.GetName())
+	id, err := c.service.KeycloakClient.CreateClient(cr.Spec.ForProvider.Realm, cr.GetName(), cr.Spec.ForProvider)
 
 	if err != nil {
 		return managed.ExternalCreation{}, err
 	}
+
+	meta.SetExternalName(cr, *id)
 
 	return managed.ExternalCreation{
 		// Optionally return any details that may be required to connect to the
