@@ -18,6 +18,7 @@ package controller
 
 import (
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
+	"github.com/pascal-sochacki/provider-keycloak/internal/controller/client"
 	"github.com/pascal-sochacki/provider-keycloak/internal/controller/realm"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -30,6 +31,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		config.Setup,
 		realm.Setup,
+		client.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
 			return err
