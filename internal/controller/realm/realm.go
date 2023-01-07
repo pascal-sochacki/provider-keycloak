@@ -34,7 +34,7 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
 	apisv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
-	kc "github.com/pascal-sochacki/provider-keycloak/internal/controller/client"
+	kc "github.com/pascal-sochacki/provider-keycloak/internal/client"
 	"github.com/pascal-sochacki/provider-keycloak/internal/controller/features"
 )
 
