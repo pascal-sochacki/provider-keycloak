@@ -30,6 +30,20 @@ type ClientParameters struct {
 	Realm string `json:"Realm"`
 	// +kubebuilder:validation:Enum=saml;openid-connect
 	Protocol string `json:"Protocol"`
+	// +optional
+	Description *string `json:"Description"`
+	// +optional
+	Name *string `json:"Name"`
+	// +optional
+	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
+	RootUrl *string `json:"RootUrl"`
+	// +optional
+	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
+	HomeUrl *string `json:"HomeUrl"`
+	// +optional
+	ValidRedirectUris *[]string `json:"ValidRedirectUris"`
+	// +optional
+	ValidPostLogoutUris *[]string `json:"ValidPostLogoutUris"`
 }
 
 // ClientObservation are the observable fields of a Client.

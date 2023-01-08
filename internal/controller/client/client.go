@@ -19,27 +19,24 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
-	"github.com/Nerzal/gocloak/v12"
-	"github.com/crossplane/crossplane-runtime/pkg/meta"
-
-	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
-	kc "github.com/pascal-sochacki/provider-keycloak/internal/client"
-
+	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/connection"
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
 	"github.com/crossplane/crossplane-runtime/pkg/event"
+	"github.com/crossplane/crossplane-runtime/pkg/meta"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
 	apisv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
+	kc "github.com/pascal-sochacki/provider-keycloak/internal/client"
 	"github.com/pascal-sochacki/provider-keycloak/internal/controller/features"
 )
 
@@ -154,8 +151,8 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{}, errors.New(errNotClient)
 	}
 
-	var client *gocloak.Client
-	client, err := c.service.KeycloakClient.GetClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr))
+	parameters := cr.Spec.ForProvider
+	client, secret, err := c.service.KeycloakClient.GetClient(parameters.Realm, meta.GetExternalName(cr))
 
 	if err != nil {
 		return managed.ExternalObservation{ //nolint:all
@@ -163,18 +160,21 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		}, nil
 	}
 
-	var resourceUpToDate = *client.Protocol == cr.Spec.ForProvider.Protocol
-
 	cr.Status.SetConditions(xpv1.Available())
 
 	details := managed.ConnectionDetails{}
 
-	if client.Secret != nil {
+	if secret != nil {
 		details = managed.ConnectionDetails{
-			"secret": []byte(*client.Secret),
+			"secret": []byte(*secret),
 		}
 	}
 
+	equal := cmp.Equal(*client, parameters)
+	var diff = ""
+	if !equal {
+		diff = cmp.Diff(*client, parameters)
+	}
 	return managed.ExternalObservation{
 		// Return false when the external resource does not exist. This lets
 		// the managed resource reconciler know that it needs to call Create to
@@ -184,11 +184,12 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		// Return false when the external resource exists, but it not up to date
 		// with the desired managed resource state. This lets the managed
 		// resource reconciler know that it needs to call Update.
-		ResourceUpToDate: resourceUpToDate,
+		ResourceUpToDate: equal,
 
 		// Return any details that may be required to connect to the external
 		// resource. These will be stored as the connection secret.
 		ConnectionDetails: details,
+		Diff:              diff,
 	}, nil
 }
 
@@ -198,7 +199,7 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalCreation{}, errors.New(errNotClient)
 	}
 
-	id, err := c.service.KeycloakClient.CreateClient(cr.Spec.ForProvider.Realm, cr.GetName(), cr.Spec.ForProvider)
+	id, err := c.service.KeycloakClient.CreateClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr), cr.Spec.ForProvider)
 
 	if err != nil {
 		return managed.ExternalCreation{}, err
@@ -219,13 +220,13 @@ func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalUpdate{}, errors.New(errNotClient)
 	}
 
-	fmt.Printf("Updating: %+v", cr)
+	err := c.service.KeycloakClient.UpdateClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr), cr.Spec.ForProvider)
 
 	return managed.ExternalUpdate{
 		// Optionally return any details that may be required to connect to the
 		// external resource. These will be stored as the connection secret.
 		ConnectionDetails: managed.ConnectionDetails{},
-	}, nil
+	}, err
 }
 
 func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
@@ -234,5 +235,5 @@ func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
 		return errors.New(errNotClient)
 	}
 
-	return c.service.KeycloakClient.DeleteClient(cr.Spec.ForProvider.Realm, cr.GetName())
+	return c.service.KeycloakClient.DeleteClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr))
 }

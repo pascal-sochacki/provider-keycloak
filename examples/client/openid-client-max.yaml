@@ -1,0 +1,21 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: openid-example-max
+spec:
+  forProvider:
+    Realm: example
+    Name: openid-example-max
+    Protocol: openid-connect
+    Description: This is a description for the client
+    RootUrl: http://www.example1.de
+    HomeUrl: http://www.example2.de
+    ValidRedirectUris:
+      - www.example3.de
+      - www.example4.de
+    ValidPostLogoutUris:
+      - www.example5.de
+
+  writeConnectionSecretToRef:
+    name: openid-example-max-secret
+    namespace: default

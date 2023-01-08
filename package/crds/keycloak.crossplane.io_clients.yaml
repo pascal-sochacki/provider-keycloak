@@ -64,6 +64,13 @@ spec:
               forProvider:
                 description: ClientParameters are the configurable fields of a Client.
                 properties:
+                  Description:
+                    type: string
+                  HomeUrl:
+                    pattern: ^https?:\/\/.+$
+                    type: string
+                  Name:
+                    type: string
                   Protocol:
                     enum:
                     - saml
@@ -71,6 +78,17 @@ spec:
                     type: string
                   Realm:
                     type: string
+                  RootUrl:
+                    pattern: ^https?:\/\/.+$
+                    type: string
+                  ValidPostLogoutUris:
+                    items:
+                      type: string
+                    type: array
+                  ValidRedirectUris:
+                    items:
+                      type: string
+                    type: array
                 required:
                 - Protocol
                 - Realm

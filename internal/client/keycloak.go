@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"reflect"
+	"strings"
 
 	"github.com/Nerzal/gocloak/v12"
 
@@ -92,17 +93,21 @@ func (c KeycloakClient) DeleteRealm(name string) error {
 	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
 }
 
-func (c KeycloakClient) GetClient(realm string, id string) (*gocloak.Client, error) {
+func (c KeycloakClient) GetClient(realm string, id string) (*v1alpha1.ClientParameters, *string, error) {
 	var token *gocloak.JWT
 	var err error
 	token, err = c.loginAdmin()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 
 	}
 	var client *gocloak.Client
 	client, err = c.client.GetClient(c.ctx, token.AccessToken, realm, id)
-	return client, err
+	if err != nil {
+		return nil, nil, err
+	}
+	_, result := mapClientBack(*client, realm)
+	return &result, client.Secret, err
 }
 
 func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.ClientParameters) (*string, error) {
@@ -110,13 +115,60 @@ func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.Cl
 	if err != nil {
 		return nil, err
 	}
-	newClient := gocloak.Client{
-		ClientID: &id,
-		Protocol: &client.Protocol,
-	}
+	newClient := mapClient(id, client)
 	var createdId string
 	createdId, err = c.client.CreateClient(c.ctx, token.AccessToken, realm, newClient)
 	return &createdId, err
+}
+
+func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
+	var attributes = map[string]string{}
+
+	if client.ValidPostLogoutUris != nil {
+		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
+	}
+
+	return gocloak.Client{
+		ID: &id,
+
+		Name:         client.Name,
+		Protocol:     &client.Protocol,
+		Description:  client.Description,
+		RootURL:      client.RootUrl,
+		BaseURL:      client.HomeUrl,
+		RedirectURIs: client.ValidRedirectUris,
+		Attributes:   &attributes,
+	}
+}
+
+func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
+	attributes := *client.Attributes
+	var uris *[]string
+	if attributes != nil {
+		uriString := attributes["post.logout.redirect.uris"]
+		urisplit := strings.Split(uriString, "##")
+		uris = &urisplit
+	}
+	return *client.ClientID, v1alpha1.ClientParameters{
+		Realm: realm,
+
+		Name:                client.Name,
+		Protocol:            *client.Protocol,
+		Description:         client.Description,
+		RootUrl:             client.RootURL,
+		HomeUrl:             client.BaseURL,
+		ValidRedirectUris:   client.RedirectURIs,
+		ValidPostLogoutUris: uris,
+	}
+}
+
+func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	update := mapClient(id, client)
+	return c.client.UpdateClient(c.ctx, token.AccessToken, realm, update)
 }
 
 func (c KeycloakClient) DeleteClient(realm string, id string) error {
