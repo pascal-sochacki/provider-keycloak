@@ -1,0 +1,11 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: example
+spec:
+  forProvider:
+    Realm: example
+    Protocol: saml
+  writeConnectionSecretToRef:
+    name: saml-example-secret
+    namespace: default

@@ -80,7 +80,7 @@ type RealmParameters struct {
 	// +kubebuilder:default=RS256
 	DefaultSignatureAlgorithm *string `json:"defaultSignatureAlgorithm,omitempty"`
 	// +optional
-	// +kubebuilder:default=false
+	// +kubebuilder:defaul`t=false
 	RevokeRefreshToken *bool `json:"revokeRefreshToken,omitempty"`
 	// +optional
 	// +kubebuilder:default=0

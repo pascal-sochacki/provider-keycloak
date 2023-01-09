@@ -1,0 +1,11 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: openid-example
+spec:
+  forProvider:
+    Realm: example
+    Protocol: openid-connect
+  writeConnectionSecretToRef:
+    name: openid-example-secret
+    namespace: default

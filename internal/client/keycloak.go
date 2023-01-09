@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"reflect"
+	"strings"
 
 	"github.com/Nerzal/gocloak/v12"
 
@@ -54,6 +55,132 @@ func (c KeycloakClient) RealmExists(name string, parameters v1alpha1.RealmParame
 	}
 	resourceUpToDate = RealmUpToDate(name, parameters, config, *realm)
 	return true, resourceUpToDate, nil
+}
+
+func (c KeycloakClient) CreateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) (*string, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	if realm.Enabled == nil {
+		enabled := true
+		realm.Enabled = &enabled
+	}
+
+	var id string
+	id, err = c.client.CreateRealm(c.ctx, token.AccessToken, mapRealm(name, realm, config))
+
+	return &id, err
+}
+
+func (c KeycloakClient) UpdateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) error {
+
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	representation := mapRealm(name, realm, config)
+
+	return c.client.UpdateRealm(c.ctx, token.AccessToken, representation)
+}
+
+func (c KeycloakClient) DeleteRealm(name string) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+
+	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
+}
+
+func (c KeycloakClient) GetClient(realm string, id string) (*v1alpha1.ClientParameters, *string, error) {
+	var token *gocloak.JWT
+	var err error
+	token, err = c.loginAdmin()
+	if err != nil {
+		return nil, nil, err
+
+	}
+	var client *gocloak.Client
+	client, err = c.client.GetClient(c.ctx, token.AccessToken, realm, id)
+	if err != nil {
+		return nil, nil, err
+	}
+	_, result := mapClientBack(*client, realm)
+	return &result, client.Secret, err
+}
+
+func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.ClientParameters) (*string, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	newClient := mapClient(id, client)
+	var createdId string
+	createdId, err = c.client.CreateClient(c.ctx, token.AccessToken, realm, newClient)
+	return &createdId, err
+}
+
+func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
+	var attributes = map[string]string{}
+
+	if client.ValidPostLogoutUris != nil {
+		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
+	}
+
+	return gocloak.Client{
+		ID: &id,
+
+		Name:         client.Name,
+		Protocol:     &client.Protocol,
+		Description:  client.Description,
+		RootURL:      client.RootUrl,
+		BaseURL:      client.HomeUrl,
+		RedirectURIs: client.ValidRedirectUris,
+		Attributes:   &attributes,
+		AdminURL:     client.AdminUrl,
+		WebOrigins:   client.WebOrigins,
+	}
+}
+
+func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
+	attributes := *client.Attributes
+	var uris *[]string
+	if attributes != nil {
+		uriString := attributes["post.logout.redirect.uris"]
+		urisplit := strings.Split(uriString, "##")
+		uris = &urisplit
+	}
+	return *client.ClientID, v1alpha1.ClientParameters{
+		Realm: realm,
+
+		Name:                client.Name,
+		Protocol:            *client.Protocol,
+		Description:         client.Description,
+		RootUrl:             client.RootURL,
+		HomeUrl:             client.BaseURL,
+		ValidRedirectUris:   client.RedirectURIs,
+		ValidPostLogoutUris: uris,
+		AdminUrl:            client.AdminURL,
+		WebOrigins:          client.WebOrigins,
+	}
+}
+
+func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	update := mapClient(id, client)
+	return c.client.UpdateClient(c.ctx, token.AccessToken, realm, update)
+}
+
+func (c KeycloakClient) DeleteClient(realm string, id string) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	return c.client.DeleteClient(c.ctx, token.AccessToken, realm, id)
 }
 
 func RealmUpToDate(desiredName string, desiredParameters v1alpha1.RealmParameters, desiredConfig *v1alpha1.SmtpConfig, representation gocloak.RealmRepresentation) bool {
@@ -116,42 +243,6 @@ func RealmUpToDate(desiredName string, desiredParameters v1alpha1.RealmParameter
 	}
 
 	return reflect.DeepEqual(parameters, desiredParameters)
-}
-
-func (c KeycloakClient) CreateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) (*string, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	if realm.Enabled == nil {
-		enabled := true
-		realm.Enabled = &enabled
-	}
-
-	var id string
-	id, err = c.client.CreateRealm(c.ctx, token.AccessToken, mapRealm(name, realm, config))
-
-	return &id, err
-}
-
-func (c KeycloakClient) UpdateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) error {
-
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-	representation := mapRealm(name, realm, config)
-
-	return c.client.UpdateRealm(c.ctx, token.AccessToken, representation)
-}
-
-func (c KeycloakClient) DeleteRealm(name string) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-
-	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
 }
 
 func mapRealm(name string, realm v1alpha1.RealmParameters, smtpCredentials *v1alpha1.SmtpConfig) gocloak.RealmRepresentation {

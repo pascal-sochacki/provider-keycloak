@@ -436,7 +436,6 @@ spec:
                     default: false
                     type: boolean
                   revokeRefreshToken:
-                    default: false
                     type: boolean
                   smtpCredentials:
                     description: SmtpCredentials are the smtp credentials for a Realm
