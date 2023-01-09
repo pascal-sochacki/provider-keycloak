@@ -138,6 +138,8 @@ func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 		BaseURL:      client.HomeUrl,
 		RedirectURIs: client.ValidRedirectUris,
 		Attributes:   &attributes,
+		AdminURL:     client.AdminUrl,
+		WebOrigins:   client.WebOrigins,
 	}
 }
 
@@ -159,6 +161,8 @@ func mapClientBack(client gocloak.Client, realm string) (id string, result v1alp
 		HomeUrl:             client.BaseURL,
 		ValidRedirectUris:   client.RedirectURIs,
 		ValidPostLogoutUris: uris,
+		AdminUrl:            client.AdminURL,
+		WebOrigins:          client.WebOrigins,
 	}
 }
 

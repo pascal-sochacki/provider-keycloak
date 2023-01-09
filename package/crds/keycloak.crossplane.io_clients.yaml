@@ -64,6 +64,8 @@ spec:
               forProvider:
                 description: ClientParameters are the configurable fields of a Client.
                 properties:
+                  AdminUrl:
+                    type: string
                   Description:
                     type: string
                   HomeUrl:
@@ -86,6 +88,10 @@ spec:
                       type: string
                     type: array
                   ValidRedirectUris:
+                    items:
+                      type: string
+                    type: array
+                  WebOrigins:
                     items:
                       type: string
                     type: array

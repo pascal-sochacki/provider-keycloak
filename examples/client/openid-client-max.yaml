@@ -15,6 +15,10 @@ spec:
       - www.example4.de
     ValidPostLogoutUris:
       - www.example5.de
+    AdminUrl: www.example6.de
+    WebOrigins:
+      - www.example7.de
+      - www.example8.de
 
   writeConnectionSecretToRef:
     name: openid-example-max-secret

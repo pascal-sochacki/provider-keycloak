@@ -44,6 +44,10 @@ type ClientParameters struct {
 	ValidRedirectUris *[]string `json:"ValidRedirectUris"`
 	// +optional
 	ValidPostLogoutUris *[]string `json:"ValidPostLogoutUris"`
+	// +optional
+	AdminUrl *string `json:"AdminUrl"`
+	// +optional
+	WebOrigins *[]string `json:"WebOrigins"`
 }
 
 // ClientObservation are the observable fields of a Client.
