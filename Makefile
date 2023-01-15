@@ -19,7 +19,7 @@ GO111MODULE = on
 -include build/makelib/golang.mk
 
 # kind-related versions
-KIND_VERSION ?= v0.12.0
+KIND_VERSION ?= v0.16.0
 KIND_NODE_IMAGE_TAG ?= v1.23.4
 
 # Setup Kubernetes tools

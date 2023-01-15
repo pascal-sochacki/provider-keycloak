@@ -66,23 +66,39 @@ spec:
                 properties:
                   AdminUrl:
                     type: string
+                  AuthorizationServicesEnabled:
+                    type: boolean
                   Description:
                     type: string
+                  DirectAccessGrantsEnabled:
+                    type: boolean
                   HomeUrl:
                     pattern: ^https?:\/\/.+$
                     type: string
+                  ImplicitFlowEnabled:
+                    type: boolean
                   Name:
                     type: string
+                  Oauth2DeviceAuthorizationGrantEnabled:
+                    type: boolean
+                  OidcCibaGrantEnabled:
+                    type: boolean
                   Protocol:
                     enum:
                     - saml
                     - openid-connect
                     type: string
+                  PublicClient:
+                    type: boolean
                   Realm:
                     type: string
                   RootUrl:
                     pattern: ^https?:\/\/.+$
                     type: string
+                  ServiceAccountsEnabled:
+                    type: boolean
+                  StandardFlowEnabled:
+                    type: boolean
                   ValidPostLogoutUris:
                     items:
                       type: string
@@ -99,6 +115,9 @@ spec:
                 - Protocol
                 - Realm
                 type: object
+                x-kubernetes-validations:
+                - rule: '!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled
+                    && self.ServiceAccountsEnabled)'
               providerConfigRef:
                 default:
                   name: default

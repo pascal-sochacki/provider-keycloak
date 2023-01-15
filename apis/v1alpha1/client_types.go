@@ -26,6 +26,7 @@ import (
 )
 
 // ClientParameters are the configurable fields of a Client.
+// +kubebuilder:validation:XValidation:rule="!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled && self.ServiceAccountsEnabled)"
 type ClientParameters struct {
 	Realm string `json:"Realm"`
 	// +kubebuilder:validation:Enum=saml;openid-connect
@@ -48,6 +49,22 @@ type ClientParameters struct {
 	AdminUrl *string `json:"AdminUrl"`
 	// +optional
 	WebOrigins *[]string `json:"WebOrigins"`
+	// +optional
+	PublicClient *bool `json:"PublicClient"`
+	// +optional
+	AuthorizationServicesEnabled *bool `json:"AuthorizationServicesEnabled"`
+	// +optional
+	ServiceAccountsEnabled *bool `json:"ServiceAccountsEnabled"`
+	// +optional
+	StandardFlowEnabled *bool `json:"StandardFlowEnabled"`
+	// +optional
+	DirectAccessGrantsEnabled *bool `json:"DirectAccessGrantsEnabled"`
+	// +optional
+	ImplicitFlowEnabled *bool `json:"ImplicitFlowEnabled"`
+	// +optional
+	Oauth2DeviceAuthorizationGrantEnabled *bool `json:"Oauth2DeviceAuthorizationGrantEnabled"`
+	// +optional
+	OidcCibaGrantEnabled *bool `json:"OidcCibaGrantEnabled"`
 }
 
 // ClientObservation are the observable fields of a Client.

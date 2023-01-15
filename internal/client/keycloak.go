@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/Nerzal/gocloak/v12"
@@ -127,42 +128,73 @@ func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 	if client.ValidPostLogoutUris != nil {
 		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
 	}
+	if client.Oauth2DeviceAuthorizationGrantEnabled != nil {
+		attributes["oauth2.device.authorization.grant.enabled"] = strconv.FormatBool(*client.Oauth2DeviceAuthorizationGrantEnabled)
+	}
+	if client.OidcCibaGrantEnabled != nil {
+		attributes["oidc.ciba.grant.enabled"] = strconv.FormatBool(*client.OidcCibaGrantEnabled)
+	}
 
 	return gocloak.Client{
 		ID: &id,
 
-		Name:         client.Name,
-		Protocol:     &client.Protocol,
-		Description:  client.Description,
-		RootURL:      client.RootUrl,
-		BaseURL:      client.HomeUrl,
-		RedirectURIs: client.ValidRedirectUris,
-		Attributes:   &attributes,
-		AdminURL:     client.AdminUrl,
-		WebOrigins:   client.WebOrigins,
+		Name:                         client.Name,
+		Protocol:                     &client.Protocol,
+		Description:                  client.Description,
+		RootURL:                      client.RootUrl,
+		BaseURL:                      client.HomeUrl,
+		RedirectURIs:                 client.ValidRedirectUris,
+		Attributes:                   &attributes,
+		AdminURL:                     client.AdminUrl,
+		WebOrigins:                   client.WebOrigins,
+		PublicClient:                 client.PublicClient,
+		AuthorizationServicesEnabled: client.AuthorizationServicesEnabled,
+		ServiceAccountsEnabled:       client.ServiceAccountsEnabled,
+		StandardFlowEnabled:          client.StandardFlowEnabled,
+		DirectAccessGrantsEnabled:    client.DirectAccessGrantsEnabled,
+		ImplicitFlowEnabled:          client.ImplicitFlowEnabled,
 	}
 }
 
 func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
 	attributes := *client.Attributes
 	var uris *[]string
+	var deviceAuthorization *bool
+	var oidcCibaGrantEnabled *bool
+
 	if attributes != nil {
 		uriString := attributes["post.logout.redirect.uris"]
 		urisplit := strings.Split(uriString, "##")
 		uris = &urisplit
+		tmp := attributes["oauth2.device.authorization.grant.enabled"]
+		v, _ := strconv.ParseBool(tmp)
+		deviceAuthorization = &v
+
+		tmp = attributes["oauth2.device.authorization.grant.enabled"]
+		v, _ = strconv.ParseBool(tmp)
+		oidcCibaGrantEnabled = &v
 	}
+
 	return *client.ClientID, v1alpha1.ClientParameters{
 		Realm: realm,
 
-		Name:                client.Name,
-		Protocol:            *client.Protocol,
-		Description:         client.Description,
-		RootUrl:             client.RootURL,
-		HomeUrl:             client.BaseURL,
-		ValidRedirectUris:   client.RedirectURIs,
-		ValidPostLogoutUris: uris,
-		AdminUrl:            client.AdminURL,
-		WebOrigins:          client.WebOrigins,
+		Name:                                  client.Name,
+		Protocol:                              *client.Protocol,
+		Description:                           client.Description,
+		RootUrl:                               client.RootURL,
+		HomeUrl:                               client.BaseURL,
+		ValidRedirectUris:                     client.RedirectURIs,
+		ValidPostLogoutUris:                   uris,
+		AdminUrl:                              client.AdminURL,
+		WebOrigins:                            client.WebOrigins,
+		PublicClient:                          client.PublicClient,
+		AuthorizationServicesEnabled:          client.AuthorizationServicesEnabled,
+		ServiceAccountsEnabled:                client.ServiceAccountsEnabled,
+		StandardFlowEnabled:                   client.StandardFlowEnabled,
+		DirectAccessGrantsEnabled:             client.DirectAccessGrantsEnabled,
+		ImplicitFlowEnabled:                   client.ImplicitFlowEnabled,
+		Oauth2DeviceAuthorizationGrantEnabled: deviceAuthorization,
+		OidcCibaGrantEnabled:                  oidcCibaGrantEnabled,
 	}
 }
 

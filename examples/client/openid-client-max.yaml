@@ -19,6 +19,13 @@ spec:
     WebOrigins:
       - www.example7.de
       - www.example8.de
+    PublicClient: false
+    AuthorizationServicesEnabled: false
+    ServiceAccountsEnabled: true
+    StandardFlowEnabled: false
+    DirectAccessGrantsEnabled: true
+    Oauth2DeviceAuthorizationGrantEnabled: true
+    OidcCibaGrantEnabled: false
 
   writeConnectionSecretToRef:
     name: openid-example-max-secret
