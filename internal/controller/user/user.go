@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -34,6 +33,7 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
+	"github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 	apisv1alpha1 "github.com/pascal-sochacki/provider-keycloak/apis/v1alpha1"
 	kc "github.com/pascal-sochacki/provider-keycloak/internal/client"
 	"github.com/pascal-sochacki/provider-keycloak/internal/controller/features"
