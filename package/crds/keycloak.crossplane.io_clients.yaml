@@ -68,15 +68,35 @@ spec:
                     type: string
                   AuthorizationServicesEnabled:
                     type: boolean
+                  BackChannelLogoutSessionRequired:
+                    type: boolean
+                  BackChannelLogoutUrl:
+                    pattern: ^https?:\/\/.+$
+                    type: string
+                  BackchannelLogoutRevokeOfflineTokens:
+                    type: boolean
+                  ConsentRequired:
+                    type: boolean
                   Description:
                     type: string
                   DirectAccessGrantsEnabled:
                     type: boolean
+                  DisplayClientOnConsentScreen:
+                    type: boolean
+                  FrontChannelLogout:
+                    type: boolean
+                  FrontChannelLogoutUrl:
+                    pattern: ^https?:\/\/.+$
+                    type: string
                   HomeUrl:
                     pattern: ^https?:\/\/.+$
                     type: string
                   ImplicitFlowEnabled:
                     type: boolean
+                  LoginTheme:
+                    type: string
+                  MessageOnConsentScreen:
+                    type: string
                   Name:
                     type: string
                   Oauth2DeviceAuthorizationGrantEnabled:

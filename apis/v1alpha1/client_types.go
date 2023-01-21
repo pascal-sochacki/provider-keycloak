@@ -65,6 +65,26 @@ type ClientParameters struct {
 	Oauth2DeviceAuthorizationGrantEnabled *bool `json:"Oauth2DeviceAuthorizationGrantEnabled"`
 	// +optional
 	OidcCibaGrantEnabled *bool `json:"OidcCibaGrantEnabled"`
+	// +optional
+	LoginTheme *string `json:"LoginTheme"`
+	// +optional
+	ConsentRequired *bool `json:"ConsentRequired"`
+	// +optional
+	DisplayClientOnConsentScreen *bool `json:"DisplayClientOnConsentScreen"`
+	// +optional
+	MessageOnConsentScreen *string `json:"MessageOnConsentScreen"`
+	// +optional
+	FrontChannelLogout *bool `json:"FrontChannelLogout"`
+	// +optional
+	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
+	FrontChannelLogoutUrl *string `json:"FrontChannelLogoutUrl"`
+	// +optional
+	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
+	BackChannelLogoutUrl *string `json:"BackChannelLogoutUrl"`
+	// +optional
+	BackChannelLogoutSessionRequired *bool `json:"BackChannelLogoutSessionRequired"`
+	// +optional
+	BackchannelLogoutRevokeOfflineTokens *bool `json:"BackchannelLogoutRevokeOfflineTokens"`
 }
 
 // ClientObservation are the observable fields of a Client.

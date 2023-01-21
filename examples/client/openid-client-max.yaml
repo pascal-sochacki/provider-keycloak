@@ -24,8 +24,19 @@ spec:
     ServiceAccountsEnabled: true
     StandardFlowEnabled: false
     DirectAccessGrantsEnabled: true
+    ImplicitFlowEnabled: true
     Oauth2DeviceAuthorizationGrantEnabled: true
-    OidcCibaGrantEnabled: false
+    OidcCibaGrantEnabled: true
+    LoginTheme: keycloak
+    ConsentRequired: true
+    DisplayClientOnConsentScreen: true
+    MessageOnConsentScreen: "Message from yaml"
+    FrontChannelLogout: true
+    FrontChannelLogoutUrl: https://logout2.de
+    BackChannelLogoutUrl: https://logout3.de
+    BackChannelLogoutSessionRequired: true
+    BackchannelLogoutRevokeOfflineTokens: false
+
 
   writeConnectionSecretToRef:
     name: openid-example-max-secret

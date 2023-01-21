@@ -123,17 +123,7 @@ func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.Cl
 }
 
 func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
-	var attributes = map[string]string{}
-
-	if client.ValidPostLogoutUris != nil {
-		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
-	}
-	if client.Oauth2DeviceAuthorizationGrantEnabled != nil {
-		attributes["oauth2.device.authorization.grant.enabled"] = strconv.FormatBool(*client.Oauth2DeviceAuthorizationGrantEnabled)
-	}
-	if client.OidcCibaGrantEnabled != nil {
-		attributes["oidc.ciba.grant.enabled"] = strconv.FormatBool(*client.OidcCibaGrantEnabled)
-	}
+	attributes := createAttributes(client)
 
 	return gocloak.Client{
 		ID: &id,
@@ -153,49 +143,103 @@ func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 		StandardFlowEnabled:          client.StandardFlowEnabled,
 		DirectAccessGrantsEnabled:    client.DirectAccessGrantsEnabled,
 		ImplicitFlowEnabled:          client.ImplicitFlowEnabled,
+		ConsentRequired:              client.ConsentRequired,
+		FrontChannelLogout:           client.FrontChannelLogout,
 	}
 }
 
-func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
-	attributes := *client.Attributes
-	var uris *[]string
-	var deviceAuthorization *bool
-	var oidcCibaGrantEnabled *bool
+//nolint:all
+func createAttributes(client v1alpha1.ClientParameters) map[string]string {
+	var attributes = map[string]string{}
 
-	if attributes != nil {
-		uriString := attributes["post.logout.redirect.uris"]
-		urisplit := strings.Split(uriString, "##")
-		uris = &urisplit
-		tmp := attributes["oauth2.device.authorization.grant.enabled"]
-		v, _ := strconv.ParseBool(tmp)
-		deviceAuthorization = &v
-
-		tmp = attributes["oauth2.device.authorization.grant.enabled"]
-		v, _ = strconv.ParseBool(tmp)
-		oidcCibaGrantEnabled = &v
+	if client.ValidPostLogoutUris != nil {
+		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
 	}
+	if client.Oauth2DeviceAuthorizationGrantEnabled != nil {
+		attributes["oauth2.device.authorization.grant.enabled"] = strconv.FormatBool(*client.Oauth2DeviceAuthorizationGrantEnabled)
+	}
+	if client.OidcCibaGrantEnabled != nil {
+		attributes["oidc.ciba.grant.enabled"] = strconv.FormatBool(*client.OidcCibaGrantEnabled)
+	}
+	if client.LoginTheme != nil {
+		attributes["login_theme"] = *client.LoginTheme
+	}
+	if client.DisplayClientOnConsentScreen != nil {
+		attributes["display.on.consent.screen"] = strconv.FormatBool(*client.DisplayClientOnConsentScreen)
+	}
+	if client.MessageOnConsentScreen != nil {
+		attributes["consent.screen.text"] = *client.MessageOnConsentScreen
+	}
+	if client.FrontChannelLogoutUrl != nil {
+		attributes["frontchannel.logout.url"] = *client.FrontChannelLogoutUrl
+	}
+	if client.BackChannelLogoutUrl != nil {
+		attributes["backchannel.logout.url"] = *client.BackChannelLogoutUrl
+	}
+	if client.BackChannelLogoutSessionRequired != nil {
+		attributes["backchannel.logout.session.required"] = strconv.FormatBool(*client.BackChannelLogoutSessionRequired)
+	}
+	if client.BackchannelLogoutRevokeOfflineTokens != nil {
+		attributes["backchannel.logout.revoke.offline.tokens"] = strconv.FormatBool(*client.BackchannelLogoutRevokeOfflineTokens)
+	}
+	return attributes
+}
 
-	return *client.ClientID, v1alpha1.ClientParameters{
+func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
+	result = v1alpha1.ClientParameters{
 		Realm: realm,
 
-		Name:                                  client.Name,
-		Protocol:                              *client.Protocol,
-		Description:                           client.Description,
-		RootUrl:                               client.RootURL,
-		HomeUrl:                               client.BaseURL,
-		ValidRedirectUris:                     client.RedirectURIs,
-		ValidPostLogoutUris:                   uris,
-		AdminUrl:                              client.AdminURL,
-		WebOrigins:                            client.WebOrigins,
-		PublicClient:                          client.PublicClient,
-		AuthorizationServicesEnabled:          client.AuthorizationServicesEnabled,
-		ServiceAccountsEnabled:                client.ServiceAccountsEnabled,
-		StandardFlowEnabled:                   client.StandardFlowEnabled,
-		DirectAccessGrantsEnabled:             client.DirectAccessGrantsEnabled,
-		ImplicitFlowEnabled:                   client.ImplicitFlowEnabled,
-		Oauth2DeviceAuthorizationGrantEnabled: deviceAuthorization,
-		OidcCibaGrantEnabled:                  oidcCibaGrantEnabled,
+		Name:                         client.Name,
+		Protocol:                     *client.Protocol,
+		Description:                  client.Description,
+		RootUrl:                      client.RootURL,
+		HomeUrl:                      client.BaseURL,
+		ValidRedirectUris:            client.RedirectURIs,
+		AdminUrl:                     client.AdminURL,
+		WebOrigins:                   client.WebOrigins,
+		PublicClient:                 client.PublicClient,
+		AuthorizationServicesEnabled: client.AuthorizationServicesEnabled,
+		ServiceAccountsEnabled:       client.ServiceAccountsEnabled,
+		StandardFlowEnabled:          client.StandardFlowEnabled,
+		DirectAccessGrantsEnabled:    client.DirectAccessGrantsEnabled,
+		ImplicitFlowEnabled:          client.ImplicitFlowEnabled,
+		ConsentRequired:              client.ConsentRequired,
+		FrontChannelLogout:           client.FrontChannelLogout,
 	}
+
+	if client.AuthorizationServicesEnabled != nil {
+		result.AuthorizationServicesEnabled = client.AuthorizationServicesEnabled
+	} else {
+		result.AuthorizationServicesEnabled = bPointer(false)
+	}
+
+	attributes := *client.Attributes
+	if attributes != nil {
+
+		uriString := attributes["post.logout.redirect.uris"]
+		urisplit := strings.Split(uriString, "##")
+		result.ValidPostLogoutUris = &urisplit
+
+		v, _ := strconv.ParseBool(attributes["oauth2.device.authorization.grant.enabled"])
+		result.Oauth2DeviceAuthorizationGrantEnabled = bPointer(v)
+
+		v, _ = strconv.ParseBool(attributes["oauth2.device.authorization.grant.enabled"])
+		result.OidcCibaGrantEnabled = &v
+
+		result.LoginTheme = sPointer(attributes["login_theme"])
+		v, _ = strconv.ParseBool(attributes["display.on.consent.screen"])
+		result.DisplayClientOnConsentScreen = bPointer(v)
+		result.MessageOnConsentScreen = sPointer(attributes["consent.screen.text"])
+		result.FrontChannelLogoutUrl = sPointer(attributes["frontchannel.logout.url"])
+		result.BackChannelLogoutUrl = sPointer(attributes["backchannel.logout.url"])
+
+		v, _ = strconv.ParseBool(attributes["backchannel.logout.session.required"])
+		result.BackChannelLogoutSessionRequired = &v
+		v, _ = strconv.ParseBool(attributes["backchannel.logout.revoke.offline.tokens"])
+		result.BackchannelLogoutRevokeOfflineTokens = &v
+	}
+
+	return *client.ClientID, result
 }
 
 func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {
@@ -630,4 +674,12 @@ func mapHeadersBack(representation gocloak.RealmRepresentation) v1alpha1.Headers
 
 func (c KeycloakClient) loginAdmin() (*gocloak.JWT, error) {
 	return c.client.LoginAdmin(c.ctx, c.config.Username, c.config.Password, c.config.Realm)
+}
+
+func bPointer(i bool) *bool {
+	return &i
+}
+
+func sPointer(i string) *string {
+	return &i
 }
