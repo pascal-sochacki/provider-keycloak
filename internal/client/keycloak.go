@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/Nerzal/gocloak/v12"
 
@@ -54,6 +56,207 @@ func (c KeycloakClient) RealmExists(name string, parameters v1alpha1.RealmParame
 	}
 	resourceUpToDate = RealmUpToDate(name, parameters, config, *realm)
 	return true, resourceUpToDate, nil
+}
+
+func (c KeycloakClient) CreateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) (*string, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	if realm.Enabled == nil {
+		enabled := true
+		realm.Enabled = &enabled
+	}
+
+	var id string
+	id, err = c.client.CreateRealm(c.ctx, token.AccessToken, mapRealm(name, realm, config))
+
+	return &id, err
+}
+
+func (c KeycloakClient) UpdateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) error {
+
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	representation := mapRealm(name, realm, config)
+
+	return c.client.UpdateRealm(c.ctx, token.AccessToken, representation)
+}
+
+func (c KeycloakClient) DeleteRealm(name string) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+
+	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
+}
+
+func (c KeycloakClient) GetClient(realm string, id string) (*v1alpha1.ClientParameters, *string, error) {
+	var token *gocloak.JWT
+	var err error
+	token, err = c.loginAdmin()
+	if err != nil {
+		return nil, nil, err
+
+	}
+	var client *gocloak.Client
+	client, err = c.client.GetClient(c.ctx, token.AccessToken, realm, id)
+	if err != nil {
+		return nil, nil, err
+	}
+	_, result := mapClientBack(*client, realm)
+	return &result, client.Secret, err
+}
+
+func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.ClientParameters) (*string, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	newClient := mapClient(id, client)
+	var createdId string
+	createdId, err = c.client.CreateClient(c.ctx, token.AccessToken, realm, newClient)
+	return &createdId, err
+}
+
+func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
+	attributes := createAttributes(client)
+
+	return gocloak.Client{
+		ID: &id,
+
+		Name:                         client.Name,
+		Protocol:                     &client.Protocol,
+		Description:                  client.Description,
+		RootURL:                      client.RootUrl,
+		BaseURL:                      client.HomeUrl,
+		RedirectURIs:                 client.ValidRedirectUris,
+		Attributes:                   &attributes,
+		AdminURL:                     client.AdminUrl,
+		WebOrigins:                   client.WebOrigins,
+		PublicClient:                 client.PublicClient,
+		AuthorizationServicesEnabled: client.AuthorizationServicesEnabled,
+		ServiceAccountsEnabled:       client.ServiceAccountsEnabled,
+		StandardFlowEnabled:          client.StandardFlowEnabled,
+		DirectAccessGrantsEnabled:    client.DirectAccessGrantsEnabled,
+		ImplicitFlowEnabled:          client.ImplicitFlowEnabled,
+		ConsentRequired:              client.ConsentRequired,
+		FrontChannelLogout:           client.FrontChannelLogout,
+	}
+}
+
+//nolint:all
+func createAttributes(client v1alpha1.ClientParameters) map[string]string {
+	var attributes = map[string]string{}
+
+	if client.ValidPostLogoutUris != nil {
+		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
+	}
+	if client.Oauth2DeviceAuthorizationGrantEnabled != nil {
+		attributes["oauth2.device.authorization.grant.enabled"] = strconv.FormatBool(*client.Oauth2DeviceAuthorizationGrantEnabled)
+	}
+	if client.OidcCibaGrantEnabled != nil {
+		attributes["oidc.ciba.grant.enabled"] = strconv.FormatBool(*client.OidcCibaGrantEnabled)
+	}
+	if client.LoginTheme != nil {
+		attributes["login_theme"] = *client.LoginTheme
+	}
+	if client.DisplayClientOnConsentScreen != nil {
+		attributes["display.on.consent.screen"] = strconv.FormatBool(*client.DisplayClientOnConsentScreen)
+	}
+	if client.MessageOnConsentScreen != nil {
+		attributes["consent.screen.text"] = *client.MessageOnConsentScreen
+	}
+	if client.FrontChannelLogoutUrl != nil {
+		attributes["frontchannel.logout.url"] = *client.FrontChannelLogoutUrl
+	}
+	if client.BackChannelLogoutUrl != nil {
+		attributes["backchannel.logout.url"] = *client.BackChannelLogoutUrl
+	}
+	if client.BackChannelLogoutSessionRequired != nil {
+		attributes["backchannel.logout.session.required"] = strconv.FormatBool(*client.BackChannelLogoutSessionRequired)
+	}
+	if client.BackchannelLogoutRevokeOfflineTokens != nil {
+		attributes["backchannel.logout.revoke.offline.tokens"] = strconv.FormatBool(*client.BackchannelLogoutRevokeOfflineTokens)
+	}
+	return attributes
+}
+
+func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
+	result = v1alpha1.ClientParameters{
+		Realm: realm,
+
+		Name:                         client.Name,
+		Protocol:                     *client.Protocol,
+		Description:                  client.Description,
+		RootUrl:                      client.RootURL,
+		HomeUrl:                      client.BaseURL,
+		ValidRedirectUris:            client.RedirectURIs,
+		AdminUrl:                     client.AdminURL,
+		WebOrigins:                   client.WebOrigins,
+		PublicClient:                 client.PublicClient,
+		AuthorizationServicesEnabled: client.AuthorizationServicesEnabled,
+		ServiceAccountsEnabled:       client.ServiceAccountsEnabled,
+		StandardFlowEnabled:          client.StandardFlowEnabled,
+		DirectAccessGrantsEnabled:    client.DirectAccessGrantsEnabled,
+		ImplicitFlowEnabled:          client.ImplicitFlowEnabled,
+		ConsentRequired:              client.ConsentRequired,
+		FrontChannelLogout:           client.FrontChannelLogout,
+	}
+
+	if client.AuthorizationServicesEnabled != nil {
+		result.AuthorizationServicesEnabled = client.AuthorizationServicesEnabled
+	} else {
+		result.AuthorizationServicesEnabled = bPointer(false)
+	}
+
+	attributes := *client.Attributes
+	if attributes != nil {
+
+		uriString := attributes["post.logout.redirect.uris"]
+		urisplit := strings.Split(uriString, "##")
+		result.ValidPostLogoutUris = &urisplit
+
+		v, _ := strconv.ParseBool(attributes["oauth2.device.authorization.grant.enabled"])
+		result.Oauth2DeviceAuthorizationGrantEnabled = bPointer(v)
+
+		v, _ = strconv.ParseBool(attributes["oauth2.device.authorization.grant.enabled"])
+		result.OidcCibaGrantEnabled = &v
+
+		result.LoginTheme = sPointer(attributes["login_theme"])
+		v, _ = strconv.ParseBool(attributes["display.on.consent.screen"])
+		result.DisplayClientOnConsentScreen = bPointer(v)
+		result.MessageOnConsentScreen = sPointer(attributes["consent.screen.text"])
+		result.FrontChannelLogoutUrl = sPointer(attributes["frontchannel.logout.url"])
+		result.BackChannelLogoutUrl = sPointer(attributes["backchannel.logout.url"])
+
+		v, _ = strconv.ParseBool(attributes["backchannel.logout.session.required"])
+		result.BackChannelLogoutSessionRequired = &v
+		v, _ = strconv.ParseBool(attributes["backchannel.logout.revoke.offline.tokens"])
+		result.BackchannelLogoutRevokeOfflineTokens = &v
+	}
+
+	return *client.ClientID, result
+}
+
+func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	update := mapClient(id, client)
+	return c.client.UpdateClient(c.ctx, token.AccessToken, realm, update)
+}
+
+func (c KeycloakClient) DeleteClient(realm string, id string) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	return c.client.DeleteClient(c.ctx, token.AccessToken, realm, id)
 }
 
 func RealmUpToDate(desiredName string, desiredParameters v1alpha1.RealmParameters, desiredConfig *v1alpha1.SmtpConfig, representation gocloak.RealmRepresentation) bool {
@@ -116,42 +319,6 @@ func RealmUpToDate(desiredName string, desiredParameters v1alpha1.RealmParameter
 	}
 
 	return reflect.DeepEqual(parameters, desiredParameters)
-}
-
-func (c KeycloakClient) CreateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) (*string, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	if realm.Enabled == nil {
-		enabled := true
-		realm.Enabled = &enabled
-	}
-
-	var id string
-	id, err = c.client.CreateRealm(c.ctx, token.AccessToken, mapRealm(name, realm, config))
-
-	return &id, err
-}
-
-func (c KeycloakClient) UpdateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) error {
-
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-	representation := mapRealm(name, realm, config)
-
-	return c.client.UpdateRealm(c.ctx, token.AccessToken, representation)
-}
-
-func (c KeycloakClient) DeleteRealm(name string) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-
-	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
 }
 
 func mapRealm(name string, realm v1alpha1.RealmParameters, smtpCredentials *v1alpha1.SmtpConfig) gocloak.RealmRepresentation {
@@ -507,4 +674,12 @@ func mapHeadersBack(representation gocloak.RealmRepresentation) v1alpha1.Headers
 
 func (c KeycloakClient) loginAdmin() (*gocloak.JWT, error) {
 	return c.client.LoginAdmin(c.ctx, c.config.Username, c.config.Password, c.config.Realm)
+}
+
+func bPointer(i bool) *bool {
+	return &i
+}
+
+func sPointer(i string) *string {
+	return &i
 }

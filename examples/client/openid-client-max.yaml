@@ -1,0 +1,43 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: openid-example-max
+spec:
+  forProvider:
+    Realm: example
+    Name: openid-example-max
+    Protocol: openid-connect
+    Description: This is a description for the client
+    RootUrl: http://www.example1.de
+    HomeUrl: http://www.example2.de
+    ValidRedirectUris:
+      - www.example3.de
+      - www.example4.de
+    ValidPostLogoutUris:
+      - www.example5.de
+    AdminUrl: www.example6.de
+    WebOrigins:
+      - www.example7.de
+      - www.example8.de
+    PublicClient: false
+    AuthorizationServicesEnabled: false
+    ServiceAccountsEnabled: true
+    StandardFlowEnabled: false
+    DirectAccessGrantsEnabled: true
+    ImplicitFlowEnabled: true
+    Oauth2DeviceAuthorizationGrantEnabled: true
+    OidcCibaGrantEnabled: true
+    LoginTheme: keycloak
+    ConsentRequired: true
+    DisplayClientOnConsentScreen: true
+    MessageOnConsentScreen: "Message from yaml"
+    FrontChannelLogout: true
+    FrontChannelLogoutUrl: https://logout2.de
+    BackChannelLogoutUrl: https://logout3.de
+    BackChannelLogoutSessionRequired: true
+    BackchannelLogoutRevokeOfflineTokens: false
+
+
+  writeConnectionSecretToRef:
+    name: openid-example-max-secret
+    namespace: default

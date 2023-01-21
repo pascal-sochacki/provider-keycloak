@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package realm
+package client
 
 import (
 	"context"
 	"encoding/json"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -29,6 +30,7 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/connection"
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
 	"github.com/crossplane/crossplane-runtime/pkg/event"
+	"github.com/crossplane/crossplane-runtime/pkg/meta"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
@@ -39,7 +41,7 @@ import (
 )
 
 const (
-	errNotRealm     = "managed resource is not a Realm custom resource"
+	errNotClient    = "managed resource is not a Client custom resource"
 	errTrackPCUsage = "cannot track ProviderConfig usage"
 	errGetPC        = "cannot get ProviderConfig"
 	errGetCreds     = "cannot get credentials"
@@ -67,9 +69,9 @@ var (
 	}
 )
 
-// Setup adds a controller that reconciles Realm managed resources.
+// Setup adds a controller that reconciles Client managed resources.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
-	name := managed.ControllerName(apisv1alpha1.RealmGroupKind)
+	name := managed.ControllerName(apisv1alpha1.ClientGroupKind)
 
 	cps := []managed.ConnectionPublisher{managed.NewAPISecretPublisher(mgr.GetClient(), mgr.GetScheme())}
 	if o.Features.Enabled(features.EnableAlphaExternalSecretStores) {
@@ -77,7 +79,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	}
 
 	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(apisv1alpha1.RealmGroupVersionKind),
+		resource.ManagedKind(apisv1alpha1.ClientGroupVersionKind),
 		managed.WithExternalConnecter(&connector{
 			kube:         mgr.GetClient(),
 			usage:        resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
@@ -89,7 +91,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o.ForControllerRuntime()).
-		For(&apisv1alpha1.Realm{}).
+		For(&apisv1alpha1.Client{}).
 		Complete(ratelimiter.NewReconciler(name, r, o.GlobalRateLimiter))
 }
 
@@ -101,10 +103,15 @@ type connector struct {
 	newServiceFn func(creds []byte) (KeycloakService, error)
 }
 
+// Connect typically produces an ExternalClient by:
+// 1. Tracking that the managed resource is using a ProviderConfig.
+// 2. Getting the managed resource's ProviderConfig.
+// 3. Getting the credentials specified by the ProviderConfig.
+// 4. Using the credentials to form a client.
 func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.ExternalClient, error) {
-	cr, ok := mg.(*apisv1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Client)
 	if !ok {
-		return nil, errors.New(errNotRealm)
+		return nil, errors.New(errNotClient)
 	}
 
 	if err := c.usage.Track(ctx, mg); err != nil {
@@ -127,33 +134,26 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		return nil, errors.Wrap(err, errNewClient)
 	}
 
-	return &external{
-		service: svc,
-		kube:    c.kube,
-	}, nil
+	return &external{service: svc}, nil
 }
 
 // An ExternalClient observes, then either creates, updates, or deletes an
 // external resource to ensure it reflects the managed resource's desired state.
 type external struct {
+	// A 'client' used to connect to the external resource API. In practice this
+	// would be something like an AWS SDK client.
 	service KeycloakService
-	kube    client.Client
 }
 
 func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
-	cr, ok := mg.(*apisv1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Client)
 	if !ok {
-		return managed.ExternalObservation{}, errors.New(errNotRealm)
+		return managed.ExternalObservation{}, errors.New(errNotClient)
 	}
 
-	config, err := c.getSmtpConfig(ctx, cr)
-	if err != nil {
-		return managed.ExternalObservation{ //nolint:all
+	parameters := cr.Spec.ForProvider
+	client, secret, err := c.service.KeycloakClient.GetClient(parameters.Realm, meta.GetExternalName(cr))
 
-		}, err
-	}
-
-	resourceExists, resourceUpToDate, err := c.service.KeycloakClient.RealmExists(mg.GetName(), cr.Spec.ForProvider, config)
 	if err != nil {
 		return managed.ExternalObservation{ //nolint:all
 			ResourceExists: false,
@@ -162,96 +162,78 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 	cr.Status.SetConditions(xpv1.Available())
 
+	details := managed.ConnectionDetails{}
+
+	if secret != nil {
+		details = managed.ConnectionDetails{
+			"secret": []byte(*secret),
+		}
+	}
+
+	equal := cmp.Equal(*client, parameters)
+	var diff = ""
+	if !equal {
+		diff = cmp.Diff(*client, parameters)
+	}
 	return managed.ExternalObservation{
 		// Return false when the external resource does not exist. This lets
 		// the managed resource reconciler know that it needs to call Create to
 		// (re)create the resource, or that it has successfully been deleted.
-		ResourceExists: resourceExists,
+		ResourceExists: true,
 
 		// Return false when the external resource exists, but it not up to date
 		// with the desired managed resource state. This lets the managed
 		// resource reconciler know that it needs to call Update.
-		ResourceUpToDate: resourceUpToDate,
+		ResourceUpToDate: equal,
 
 		// Return any details that may be required to connect to the external
 		// resource. These will be stored as the connection secret.
+		ConnectionDetails: details,
+		Diff:              diff,
+	}, nil
+}
+
+func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
+	cr, ok := mg.(*apisv1alpha1.Client)
+	if !ok {
+		return managed.ExternalCreation{}, errors.New(errNotClient)
+	}
+
+	id, err := c.service.KeycloakClient.CreateClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr), cr.Spec.ForProvider)
+
+	if err != nil {
+		return managed.ExternalCreation{}, err
+	}
+
+	meta.SetExternalName(cr, *id)
+
+	return managed.ExternalCreation{
+		// Optionally return any details that may be required to connect to the
+		// external resource. These will be stored as the connection secret.
 		ConnectionDetails: managed.ConnectionDetails{},
 	}, nil
 }
 
-func (c *external) getSmtpConfig(ctx context.Context, cr *apisv1alpha1.Realm) (*apisv1alpha1.SmtpConfig, error) {
-	cd := cr.Spec.ForProvider.SmtpCredentials
-
-	if cd == nil {
-		return nil, nil
-	}
-	data, err := resource.CommonCredentialExtractor(ctx, cd.Source, c.kube, cd.CommonCredentialSelectors)
-	if err != nil {
-		return nil, err
-	}
-
-	var config apisv1alpha1.SmtpConfig
-	err = json.Unmarshal(data, &config)
-	if err != nil {
-		return nil, err
-	}
-	return &config, nil
-}
-
-func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
-	cr, ok := mg.(*apisv1alpha1.Realm)
-	if !ok {
-		return managed.ExternalCreation{}, errors.New(errNotRealm)
-	}
-
-	smtpConfig, err := c.getSmtpConfig(ctx, cr)
-	if err != nil {
-		return managed.ExternalCreation{}, err
-	}
-
-	id, err := c.service.KeycloakClient.CreateRealm(mg.GetName(), cr.Spec.ForProvider, smtpConfig)
-
-	if err != nil {
-		return managed.ExternalCreation{}, err
-	}
-	return managed.ExternalCreation{
-
-		// Optionally return any details that may be required to connect to the
-		// external resource. These will be stored as the connection secret.
-		ConnectionDetails: managed.ConnectionDetails{
-			"internalId": []byte(*id),
-		},
-	}, nil
-}
-
 func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
-	cr, ok := mg.(*apisv1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Client)
 	if !ok {
-		return managed.ExternalUpdate{}, errors.New(errNotRealm)
+		return managed.ExternalUpdate{}, errors.New(errNotClient)
 	}
 
-	smtpConfig, err := c.getSmtpConfig(ctx, cr)
-	if err != nil {
-		return managed.ExternalUpdate{}, err
-	}
-
-	err = c.service.KeycloakClient.UpdateRealm(mg.GetName(), cr.Spec.ForProvider, smtpConfig)
-	if err != nil {
-		return managed.ExternalUpdate{}, err
-	}
+	err := c.service.KeycloakClient.UpdateClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr), cr.Spec.ForProvider)
 
 	return managed.ExternalUpdate{
 		// Optionally return any details that may be required to connect to the
 		// external resource. These will be stored as the connection secret.
 		ConnectionDetails: managed.ConnectionDetails{},
-	}, nil
+	}, err
 }
 
 func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
-	_, ok := mg.(*apisv1alpha1.Realm)
+	cr, ok := mg.(*apisv1alpha1.Client)
 	if !ok {
-		return errors.New(errNotRealm)
+		return errors.New(errNotClient)
 	}
 
-	return c.service.KeycloakClient.DeleteRealm(mg.GetName())
+	return c.service.KeycloakClient.DeleteClient(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr))
 }
