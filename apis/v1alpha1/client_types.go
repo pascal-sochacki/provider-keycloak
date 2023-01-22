@@ -133,7 +133,7 @@ type ClientList struct {
 // Client type metadata.
 var (
 	ClientKind             = reflect.TypeOf(Client{}).Name()
-	ClientGroupKind        = schema.GroupKind{Group: Group, Kind: ClientKind}.String()
+	ClientGroupKind        = schema.GroupKind{Group: GroupName, Kind: ClientKind}.String()
 	ClientKindAPIVersion   = ClientKind + "." + SchemeGroupVersion.String()
 	ClientGroupVersionKind = SchemeGroupVersion.WithKind(ClientKind)
 )

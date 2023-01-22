@@ -172,6 +172,40 @@ func (c KeycloakClient) DeleteUser(realm string, userId string) error {
 	return c.client.DeleteUser(c.ctx, token.AccessToken, realm, userId)
 }
 
+func (c KeycloakClient) GetGroup(realm string, groupId string) (*v1alpha1.GroupParameters, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	_, err = c.client.GetGroup(c.ctx, token.AccessToken, realm, groupId)
+	if err != nil {
+		return nil, err
+	}
+	return &v1alpha1.GroupParameters{
+		Realm: realm,
+	}, nil
+}
+
+func (c KeycloakClient) CreateGroup(realm string, name string) (*string, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	id, err := c.client.CreateGroup(c.ctx, token.AccessToken, realm, gocloak.Group{
+		Name: &name,
+	})
+
+	return &id, err
+}
+
+func (c KeycloakClient) DeleteGroup(realm string, groupId string) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	return c.client.DeleteGroup(c.ctx, token.AccessToken, realm, groupId)
+}
+
 func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 	attributes := createAttributes(client)
 

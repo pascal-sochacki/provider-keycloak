@@ -281,7 +281,7 @@ type RealmList struct {
 // Realm type metadata.
 var (
 	RealmKind             = reflect.TypeOf(Realm{}).Name()
-	RealmGroupKind        = schema.GroupKind{Group: Group, Kind: RealmKind}.String()
+	RealmGroupKind        = schema.GroupKind{Group: GroupName, Kind: RealmKind}.String()
 	RealmKindAPIVersion   = RealmKind + "." + SchemeGroupVersion.String()
 	RealmGroupVersionKind = SchemeGroupVersion.WithKind(RealmKind)
 )
