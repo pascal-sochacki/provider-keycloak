@@ -1,0 +1,9 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: User
+metadata:
+  name: example
+spec:
+  forProvider:
+    Realm: example
+    Username: example-username
+
