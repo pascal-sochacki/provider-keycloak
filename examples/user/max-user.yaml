@@ -1,0 +1,10 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: User
+metadata:
+  name: max-example
+spec:
+  forProvider:
+    Realm: example
+    Username: max-example-username
+    Email: example@example2.org
+

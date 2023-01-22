@@ -122,6 +122,56 @@ func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.Cl
 	return &createdId, err
 }
 
+func (c KeycloakClient) GetUser(realm string, userId string) (*v1alpha1.UserParameters, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	user, err := c.client.GetUserByID(c.ctx, token.AccessToken, realm, userId)
+	if err != nil {
+		return nil, err
+	}
+	return &v1alpha1.UserParameters{
+		Realm:    realm,
+		Username: *user.Username,
+		Email:    user.Email,
+	}, nil
+}
+
+func (c KeycloakClient) CreateUser(realm string, user v1alpha1.UserParameters) (*string, error) {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return nil, err
+	}
+	userId, err := c.client.CreateUser(c.ctx, token.AccessToken, realm, mapUser(user))
+	return &userId, err
+}
+
+func mapUser(user v1alpha1.UserParameters) gocloak.User {
+	return gocloak.User{
+		Username: &user.Username,
+		Email:    user.Email,
+	}
+}
+
+func (c KeycloakClient) UpdateUser(realm string, userId string, user v1alpha1.UserParameters) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	mappedUser := mapUser(user)
+	mappedUser.ID = &userId
+	return c.client.UpdateUser(c.ctx, token.AccessToken, realm, mappedUser)
+}
+
+func (c KeycloakClient) DeleteUser(realm string, userId string) error {
+	var token, err = c.loginAdmin()
+	if err != nil {
+		return err
+	}
+	return c.client.DeleteUser(c.ctx, token.AccessToken, realm, userId)
+}
+
 func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 	attributes := createAttributes(client)
 

@@ -64,10 +64,15 @@ spec:
               forProvider:
                 description: UserParameters are the configurable fields of a User.
                 properties:
-                  configurableField:
+                  Email:
+                    type: string
+                  Realm:
+                    type: string
+                  Username:
                     type: string
                 required:
-                - configurableField
+                - Realm
+                - Username
                 type: object
               providerConfigRef:
                 default:
