@@ -278,48 +278,35 @@ func mapClientBack(client gocloak.Client, realm string) (id string, result v1alp
 			result.ValidPostLogoutUris = &urisplit
 		}
 
-		if oauth2DeviceAuthorizationGrantEnabled, found := attributes["oauth2.device.authorization.grant.enabled"]; found {
-			boolResult, _ := strconv.ParseBool(oauth2DeviceAuthorizationGrantEnabled)
-			result.Oauth2DeviceAuthorizationGrantEnabled = bPointer(boolResult)
-		}
-
-		if oidcCibaGrantEnabled, found := attributes["oidc.ciba.grant.enabled"]; found {
-			resultBool, _ := strconv.ParseBool(oidcCibaGrantEnabled)
-			result.OidcCibaGrantEnabled = bPointer(resultBool)
-		}
-
-		if login, found := attributes["login_theme"]; found {
-			result.LoginTheme = sPointer(login)
-		}
-
-		if displayClientOnConsentScreen, found := attributes["display.on.consent.screen"]; found {
-			resultBool, _ := strconv.ParseBool(displayClientOnConsentScreen)
-			result.DisplayClientOnConsentScreen = bPointer(resultBool)
-		}
-
-		if message, found := attributes["consent.screen.text"]; found {
-			result.MessageOnConsentScreen = sPointer(message)
-		}
-
-		if url, found := attributes["frontchannel.logout.url"]; found {
-			result.FrontChannelLogoutUrl = sPointer(url)
-		}
-		if url, found := attributes["backchannel.logout.url"]; found {
-			result.BackChannelLogoutUrl = sPointer(url)
-		}
-
-		if backChannelLogoutSessionRequired, found := attributes["backchannel.logout.session.required"]; found {
-			resultBool, _ := strconv.ParseBool(backChannelLogoutSessionRequired)
-			result.BackChannelLogoutSessionRequired = &resultBool
-		}
-
-		if backchannelLogoutRevokeOfflineTokens, found := attributes["backchannel.logout.revoke.offline.tokens"]; found {
-			resultBool, _ := strconv.ParseBool(backchannelLogoutRevokeOfflineTokens)
-			result.BackchannelLogoutRevokeOfflineTokens = &resultBool
-		}
+		result.Oauth2DeviceAuthorizationGrantEnabled = getAsBool(attributes, "oauth2.device.authorization.grant.enabled")
+		result.OidcCibaGrantEnabled = getAsBool(attributes, "oidc.ciba.grant.enabled")
+		result.LoginTheme = getAsString(attributes, "login_theme")
+		result.DisplayClientOnConsentScreen = getAsBool(attributes, "display.on.consent.screen")
+		result.MessageOnConsentScreen = getAsString(attributes, "consent.screen.text")
+		result.FrontChannelLogoutUrl = getAsString(attributes, "frontchannel.logout.url")
+		result.BackChannelLogoutUrl = getAsString(attributes, "backchannel.logout.url")
+		result.BackChannelLogoutSessionRequired = getAsBool(attributes, "backchannel.logout.session.required")
+		result.BackchannelLogoutRevokeOfflineTokens = getAsBool(attributes, "backchannel.logout.revoke.offline.tokens")
 	}
 
 	return *client.ClientID, result
+}
+
+func getAsBool(attributes map[string]string, attribute string) *bool {
+	if value, found := attributes[attribute]; found {
+		resultBool, _ := strconv.ParseBool(value)
+		return &resultBool
+	} else {
+		return nil
+	}
+}
+
+func getAsString(attributes map[string]string, attribute string) *string {
+	if value, found := attributes[attribute]; found {
+		return sPointer(value)
+	} else {
+		return nil
+	}
 }
 
 func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {
