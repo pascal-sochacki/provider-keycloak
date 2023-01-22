@@ -25,65 +25,62 @@ import (
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 )
 
-// UserParameters are the configurable fields of a User.
-type UserParameters struct {
-	Realm    string `json:"Realm"`
-	Username string `json:"Username"`
-	// +optional
-	Email *string `json:"Email"`
+// GroupParameters are the configurable fields of a GroupName.
+type GroupParameters struct {
+	Realm string `json:"Realm"`
 }
 
-// UserObservation are the observable fields of a User.
-type UserObservation struct {
+// GroupObservation are the observable fields of a GroupName.
+type GroupObservation struct {
 	ObservableField string `json:"observableField,omitempty"`
 }
 
-// A UserSpec defines the desired state of a User.
-type UserSpec struct {
+// A GroupSpec defines the desired state of a GroupName.
+type GroupSpec struct {
 	xpv1.ResourceSpec `json:",inline"`
-	ForProvider       UserParameters `json:"forProvider"`
+	ForProvider       GroupParameters `json:"forProvider"`
 }
 
-// A UserStatus represents the observed state of a User.
-type UserStatus struct {
+// A GroupStatus represents the observed state of a GroupName.
+type GroupStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          UserObservation `json:"atProvider,omitempty"`
+	AtProvider          GroupObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// A User is an example API type.
+// A Group is an example API type.
 // +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,keycloak}
-type User struct {
+type Group struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   UserSpec   `json:"spec"`
-	Status UserStatus `json:"status,omitempty"`
+	Spec   GroupSpec   `json:"spec"`
+	Status GroupStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// UserList contains a list of User
-type UserList struct {
+// GroupList contains a list of GroupName
+type GroupList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []User `json:"items"`
+	Items           []Group `json:"items"`
 }
 
-// User type metadata.
+// GroupName type metadata.
 var (
-	UserKind             = reflect.TypeOf(User{}).Name()
-	UserGroupKind        = schema.GroupKind{Group: GroupName, Kind: UserKind}.String()
-	UserKindAPIVersion   = UserKind + "." + SchemeGroupVersion.String()
-	UserGroupVersionKind = SchemeGroupVersion.WithKind(UserKind)
+	GroupKind             = reflect.TypeOf(Group{}).Name()
+	GroupGroupKind        = schema.GroupKind{Group: GroupName, Kind: GroupKind}.String()
+	GroupKindAPIVersion   = GroupKind + "." + SchemeGroupVersion.String()
+	GroupGroupVersionKind = SchemeGroupVersion.WithKind(GroupKind)
 )
 
 func init() {
-	SchemeBuilder.Register(&User{}, &UserList{})
+	SchemeBuilder.Register(&Group{}, &GroupList{})
 }

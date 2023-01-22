@@ -1,0 +1,7 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  name: example
+spec:
+  forProvider:
+    Realm: example
