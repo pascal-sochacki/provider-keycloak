@@ -67,23 +67,30 @@ spec:
                   AdminUrl:
                     type: string
                   AuthorizationServicesEnabled:
+                    default: false
                     type: boolean
                   BackChannelLogoutSessionRequired:
+                    default: false
                     type: boolean
                   BackChannelLogoutUrl:
                     pattern: ^https?:\/\/.+$
                     type: string
                   BackchannelLogoutRevokeOfflineTokens:
+                    default: false
                     type: boolean
                   ConsentRequired:
+                    default: false
                     type: boolean
                   Description:
                     type: string
                   DirectAccessGrantsEnabled:
+                    default: true
                     type: boolean
                   DisplayClientOnConsentScreen:
+                    default: false
                     type: boolean
                   FrontChannelLogout:
+                    default: false
                     type: boolean
                   FrontChannelLogoutUrl:
                     pattern: ^https?:\/\/.+$
@@ -92,6 +99,7 @@ spec:
                     pattern: ^https?:\/\/.+$
                     type: string
                   ImplicitFlowEnabled:
+                    default: false
                     type: boolean
                   LoginTheme:
                     type: string
@@ -100,8 +108,10 @@ spec:
                   Name:
                     type: string
                   Oauth2DeviceAuthorizationGrantEnabled:
+                    default: false
                     type: boolean
                   OidcCibaGrantEnabled:
+                    default: false
                     type: boolean
                   Protocol:
                     enum:
@@ -109,6 +119,7 @@ spec:
                     - openid-connect
                     type: string
                   PublicClient:
+                    default: true
                     type: boolean
                   Realm:
                     type: string
@@ -116,8 +127,10 @@ spec:
                     pattern: ^https?:\/\/.+$
                     type: string
                   ServiceAccountsEnabled:
+                    default: false
                     type: boolean
                   StandardFlowEnabled:
+                    default: true
                     type: boolean
                   ValidPostLogoutUris:
                     items:
@@ -132,8 +145,21 @@ spec:
                       type: string
                     type: array
                 required:
+                - AuthorizationServicesEnabled
+                - BackChannelLogoutSessionRequired
+                - BackchannelLogoutRevokeOfflineTokens
+                - ConsentRequired
+                - DirectAccessGrantsEnabled
+                - DisplayClientOnConsentScreen
+                - FrontChannelLogout
+                - ImplicitFlowEnabled
+                - Oauth2DeviceAuthorizationGrantEnabled
+                - OidcCibaGrantEnabled
                 - Protocol
+                - PublicClient
                 - Realm
+                - ServiceAccountsEnabled
+                - StandardFlowEnabled
                 type: object
                 x-kubernetes-validations:
                 - rule: '!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled

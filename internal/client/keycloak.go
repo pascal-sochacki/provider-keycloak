@@ -176,7 +176,8 @@ func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 	attributes := createAttributes(client)
 
 	return gocloak.Client{
-		ID: &id,
+		ID:       &id,
+		ClientID: &id,
 
 		Name:                         client.Name,
 		Protocol:                     &client.Protocol,
@@ -244,9 +245,7 @@ func mapClientBack(client gocloak.Client, realm string) (id string, result v1alp
 		Description:                  client.Description,
 		RootUrl:                      client.RootURL,
 		HomeUrl:                      client.BaseURL,
-		ValidRedirectUris:            client.RedirectURIs,
 		AdminUrl:                     client.AdminURL,
-		WebOrigins:                   client.WebOrigins,
 		PublicClient:                 client.PublicClient,
 		AuthorizationServicesEnabled: client.AuthorizationServicesEnabled,
 		ServiceAccountsEnabled:       client.ServiceAccountsEnabled,
@@ -255,6 +254,14 @@ func mapClientBack(client gocloak.Client, realm string) (id string, result v1alp
 		ImplicitFlowEnabled:          client.ImplicitFlowEnabled,
 		ConsentRequired:              client.ConsentRequired,
 		FrontChannelLogout:           client.FrontChannelLogout,
+	}
+
+	if client.RedirectURIs != nil && len(*client.RedirectURIs) > 0 {
+		result.ValidRedirectUris = client.RedirectURIs
+	}
+
+	if client.WebOrigins != nil && len(*client.WebOrigins) > 0 {
+		result.WebOrigins = client.WebOrigins
 	}
 
 	if client.AuthorizationServicesEnabled != nil {
@@ -266,30 +273,40 @@ func mapClientBack(client gocloak.Client, realm string) (id string, result v1alp
 	attributes := *client.Attributes
 	if attributes != nil {
 
-		uriString := attributes["post.logout.redirect.uris"]
-		urisplit := strings.Split(uriString, "##")
-		result.ValidPostLogoutUris = &urisplit
+		if uriString, found := attributes["post.logout.redirect.uris"]; found {
+			urisplit := strings.Split(uriString, "##")
+			result.ValidPostLogoutUris = &urisplit
+		}
 
-		v, _ := strconv.ParseBool(attributes["oauth2.device.authorization.grant.enabled"])
-		result.Oauth2DeviceAuthorizationGrantEnabled = bPointer(v)
-
-		v, _ = strconv.ParseBool(attributes["oauth2.device.authorization.grant.enabled"])
-		result.OidcCibaGrantEnabled = &v
-
-		result.LoginTheme = sPointer(attributes["login_theme"])
-		v, _ = strconv.ParseBool(attributes["display.on.consent.screen"])
-		result.DisplayClientOnConsentScreen = bPointer(v)
-		result.MessageOnConsentScreen = sPointer(attributes["consent.screen.text"])
-		result.FrontChannelLogoutUrl = sPointer(attributes["frontchannel.logout.url"])
-		result.BackChannelLogoutUrl = sPointer(attributes["backchannel.logout.url"])
-
-		v, _ = strconv.ParseBool(attributes["backchannel.logout.session.required"])
-		result.BackChannelLogoutSessionRequired = &v
-		v, _ = strconv.ParseBool(attributes["backchannel.logout.revoke.offline.tokens"])
-		result.BackchannelLogoutRevokeOfflineTokens = &v
+		result.Oauth2DeviceAuthorizationGrantEnabled = getAsBool(attributes, "oauth2.device.authorization.grant.enabled")
+		result.OidcCibaGrantEnabled = getAsBool(attributes, "oidc.ciba.grant.enabled")
+		result.LoginTheme = getAsString(attributes, "login_theme")
+		result.DisplayClientOnConsentScreen = getAsBool(attributes, "display.on.consent.screen")
+		result.MessageOnConsentScreen = getAsString(attributes, "consent.screen.text")
+		result.FrontChannelLogoutUrl = getAsString(attributes, "frontchannel.logout.url")
+		result.BackChannelLogoutUrl = getAsString(attributes, "backchannel.logout.url")
+		result.BackChannelLogoutSessionRequired = getAsBool(attributes, "backchannel.logout.session.required")
+		result.BackchannelLogoutRevokeOfflineTokens = getAsBool(attributes, "backchannel.logout.revoke.offline.tokens")
 	}
 
 	return *client.ClientID, result
+}
+
+func getAsBool(attributes map[string]string, attribute string) *bool {
+	if value, found := attributes[attribute]; found {
+		resultBool, _ := strconv.ParseBool(value)
+		return &resultBool
+	} else {
+		return nil
+	}
+}
+
+func getAsString(attributes map[string]string, attribute string) *string {
+	if value, found := attributes[attribute]; found {
+		return sPointer(value)
+	} else {
+		return nil
+	}
 }
 
 func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {

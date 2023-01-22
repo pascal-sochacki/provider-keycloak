@@ -31,100 +31,73 @@ import (
 type RealmParameters struct {
 	// Boolean representing if realm is enabled or not
 	// +kubebuilder:default=true
-	// +optional
 	Enabled *bool `json:"enabled,omitempty"`
 	// +optional
 	DisplayName *string `json:"displayName,omitempty"`
 	// +optional
 	DisplayNameHTML *string `json:"displayNameHtml,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	UserManagedAccess *bool `json:"userManagedAccess,omitempty"`
 	// +optional
 	Attributes *map[string]string `json:"attributes,omitempty"`
 
-	// +optional
 	// +kubebuilder:default=false
 	RegistrationAllowed *bool `json:"registrationAllowed,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	RegistrationEmailAsUsername *bool `json:"registrationEmailAsUsername,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	EditUsernameAllowed *bool `json:"editUsernameAllowed,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	ResetPasswordAllowed *bool `json:"resetPasswordAllowed,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	RememberMe *bool `json:"rememberMe,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	VerifyEmail *bool `json:"verifyEmail,omitempty"`
-	// +optional
 	// +kubebuilder:default=true
 	LoginWithEmailAllowed *bool `json:"loginWithEmailAllowed,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	DuplicateEmailsAllowed *bool `json:"duplicateEmailsAllowed,omitempty"`
 	// Can be one of following values: 'none, 'external' or 'all'
-	// +optional
 	// +kubebuilder:validation:Enum=none;external;all
 	// +kubebuilder:default=external
 	SSLRequired *string `json:"SSLRequired,omitempty"`
 
 	//todo: Themes
 
-	// +optional
 	// +kubebuilder:validation:Enum=RS256;ES256;ES384;ES512;HS256;HS384;HS512;RS256;RS384;RS512;PS256;PS384;RS512
 	// +kubebuilder:default=RS256
 	DefaultSignatureAlgorithm *string `json:"defaultSignatureAlgorithm,omitempty"`
-	// +optional
 	// +kubebuilder:defaul`t=false
-	RevokeRefreshToken *bool `json:"revokeRefreshToken,omitempty"`
-	// +optional
+	RevokeRefreshToken *bool `json:"revokeRefreshToken,omitempty"` // +optional
 	// +kubebuilder:default=0
 	RefreshTokenMaxReuse *int `json:"refreshTokenMaxReuse,omitempty"`
 
 	// SSO Session Idle in seconds
-	// +optional
 	// +kubebuilder:default=1800
 	SSOSessionIdleTimeout *int `json:"SSOSessionIdleTimeout,omitempty"`
 	// SSO Session Max Lifespan in seconds
-	// +optional
 	// +kubebuilder:default=36000
 	SSOSessionMaxLifespan *int `json:"SSOSessionMaxLifespan,omitempty"`
-	// +optional
 	// +kubebuilder:default=0
 	SSOSessionMaxLifespanRememberMe *int `json:"SSOSessionMaxLifespanRememberMe,omitempty"`
-	// +optional
 	// +kubebuilder:default=2592000
 	OfflineSessionIdleTimeout *int `json:"OfflineSessionIdleTimeout,omitempty"`
-	// +optional
 	// +kubebuilder:default=5184000
 	OfflineSessionMaxLifespan *int `json:"OfflineSessionMaxLifespan,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	OfflineSessionMaxLifespanEnabled *bool `json:"OfflineSessionMaxLifespanEnabled,omitempty"`
-	// +optional
 	// +kubebuilder:default=300
 	AccessTokenLifespan *int `json:"AccessTokenLifespan,omitempty"`
-	// +optional
 	// +kubebuilder:default=900
 	AccessTokenLifespanForImplicitFlow *int `json:"AccessTokenLifespanForImplicitFlow,omitempty"`
-	// +optional
 	// +kubebuilder:default=60
 	AccessCodeLifespan *int `json:"AccessCodeLifespan,omitempty"`
-	// +optional
 	// +kubebuilder:default=1800
 	AccessCodeLifespanLogin *int `json:"AccessCodeLifespanLogin,omitempty"`
-	// +optional
 	// +kubebuilder:default=300
 	AccessCodeLifespanUserAction *int `json:"AccessCodeLifespanUserAction,omitempty"`
-	// +optional
 	// +kubebuilder:default=300
 	ActionTokenGeneratedByUserLifespan *int `json:"ActionTokenGeneratedByUserLifespan,omitempty"`
-	// +optional
 	// +kubebuilder:default=43200
 	ActionTokenGeneratedByAdminLifespan *int `json:"ActionTokenGeneratedByAdminLifespan,omitempty"`
 
@@ -132,15 +105,12 @@ type RealmParameters struct {
 	SmtpCredentials *SmtpCredentials `json:"smtpCredentials"`
 
 	// +optional
-	// +kubebuilder:default={}
 	SupportedLocales *[]string `json:"SupportedLocales"`
 	// +optional
 	DefaultLocale *string `json:"defaultLocale,omitempty"`
-	// +optional
 	// +kubebuilder:default=false
 	InternationalizationEnabled *bool `json:"internationalizationEnabled,omitempty"`
 
-	// +optional
 	// +kubebuilder:default={XFrameOptions: "SAMEORIGIN", XRobotsTag: "none", ContentSecurityPolicyReportOnly: "", ContentSecurityPolicy: "frame-src 'self'; frame-ancestors 'self'; object-src 'none';", XContentTypeOptions: "nosniff", XXssProtection: "1; mode=block", StrictTransportSecurity: "max-age=31536000; includeSubDomains"}
 	Headers HeadersConfig `json:"headers"`
 	// +optional
@@ -149,33 +119,24 @@ type RealmParameters struct {
 	// +optional
 	PasswordPolicy *string `json:"passwordPolicy,omitempty"`
 
-	// +optional
 	// +kubebuilder:default=browser
 	BrowserFlow *string `json:"BrowserFlow,omitempty"`
-	// +optional
 	// +kubebuilder:default=registration
 	RegistrationFlow *string `json:"RegistrationFlow,omitempty"`
-	// +optional
 	// +kubebuilder:default=direct grant
 	DirectGrantFlow *string `json:"DirectGrantFlow,omitempty"`
-	// +optional
 	// +kubebuilder:default=reset credentials
 	ResetCredentialsFlow *string `json:"ResetCredentialsFlow,omitempty"`
-	// +optional
 	// +kubebuilder:default=clients
 	ClientAuthenticationFlow *string `json:"ClientAuthenticationFlow,omitempty"`
-	// +optional
 	// +kubebuilder:default=docker auth
 	DockerAuthenticationFlow *string `json:"DockerAuthenticationFlow,omitempty"`
 
-	// +optional
 	// +kubebuilder:default={Type: "totp", Algorithm: "HmacSHA1", Digits: 6, InitialCounter: 0, LookAheadWindow: 1, Period: 30}
 	OTPPolicy OTPPolicyConfig `json:"OTPPolicy,omitempty"`
 
-	// +optional
 	// +kubebuilder:default={RelyingPartyEntityName: "keycloak", RelyingPartyId: "", SignatureAlgorithms: {"ES256"}, AttestationConveyancePreference: "not specified", AuthenticatorAttachment: "not specified", RequireResidentKey: "not specified", UserVerificationRequirement: "not specified", CreateTimeout: 0, AvoidSameAuthenticatorRegister: false}
 	WebAuthnPolicy PolicyConfig `json:"WebAuthnPolicy,omitempty"`
-	// +optional
 	// +kubebuilder:default={RelyingPartyEntityName: "keycloak", RelyingPartyId: "", SignatureAlgorithms: {"ES256"}, AttestationConveyancePreference: "not specified", AuthenticatorAttachment: "not specified", RequireResidentKey: "not specified", UserVerificationRequirement: "not specified", CreateTimeout: 0, AvoidSameAuthenticatorRegister: false}
 	WebAuthnPasswordlessPolicy PolicyConfig `json:"WebAuthnPasswordlessPolicy,omitempty"`
 }
