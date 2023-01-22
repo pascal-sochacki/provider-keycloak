@@ -49,31 +49,31 @@ type ClientParameters struct {
 	AdminUrl *string `json:"AdminUrl"`
 	// +optional
 	WebOrigins *[]string `json:"WebOrigins"`
-	// +optional
+	// +kubebuilder:default=true
 	PublicClient *bool `json:"PublicClient"`
-	// +optional
+	// +kubebuilder:default=false
 	AuthorizationServicesEnabled *bool `json:"AuthorizationServicesEnabled"`
-	// +optional
+	// +kubebuilder:default=false
 	ServiceAccountsEnabled *bool `json:"ServiceAccountsEnabled"`
-	// +optional
+	// +kubebuilder:default=true
 	StandardFlowEnabled *bool `json:"StandardFlowEnabled"`
-	// +optional
+	// +kubebuilder:default=true
 	DirectAccessGrantsEnabled *bool `json:"DirectAccessGrantsEnabled"`
-	// +optional
+	// +kubebuilder:default=false
 	ImplicitFlowEnabled *bool `json:"ImplicitFlowEnabled"`
-	// +optional
+	// +kubebuilder:default=false
 	Oauth2DeviceAuthorizationGrantEnabled *bool `json:"Oauth2DeviceAuthorizationGrantEnabled"`
-	// +optional
+	// +kubebuilder:default=false
 	OidcCibaGrantEnabled *bool `json:"OidcCibaGrantEnabled"`
 	// +optional
 	LoginTheme *string `json:"LoginTheme"`
-	// +optional
+	// +kubebuilder:default=false
 	ConsentRequired *bool `json:"ConsentRequired"`
-	// +optional
+	// +kubebuilder:default=false
 	DisplayClientOnConsentScreen *bool `json:"DisplayClientOnConsentScreen"`
 	// +optional
 	MessageOnConsentScreen *string `json:"MessageOnConsentScreen"`
-	// +optional
+	// +kubebuilder:default=false
 	FrontChannelLogout *bool `json:"FrontChannelLogout"`
 	// +optional
 	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
@@ -81,9 +81,9 @@ type ClientParameters struct {
 	// +optional
 	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
 	BackChannelLogoutUrl *string `json:"BackChannelLogoutUrl"`
-	// +optional
+	// +kubebuilder:default=false
 	BackChannelLogoutSessionRequired *bool `json:"BackChannelLogoutSessionRequired"`
-	// +optional
+	// +kubebuilder:default=false
 	BackchannelLogoutRevokeOfflineTokens *bool `json:"BackchannelLogoutRevokeOfflineTokens"`
 }
 
