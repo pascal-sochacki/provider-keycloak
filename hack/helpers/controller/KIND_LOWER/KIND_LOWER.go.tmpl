@@ -46,11 +46,17 @@ const (
 	errNewClient = "cannot create new Service"
 )
 
-// A NoOpService does nothing.
-type NoOpService struct{}
+type KeycloakService struct {
+	KeycloakClient *kc.KeycloakClient
+}
 
 var (
-	newNoOpService = func(_ []byte) (interface{}, error) { return &NoOpService{}, nil }
+	newKeycloakService = func(creds []byte) (KeycloakService, error) {
+		client, err := kc.NewKeycloakClientFromJson(creds)
+		return KeycloakService{
+			KeycloakClient: client,
+		}, err
+	}
 )
 
 // Setup adds a controller that reconciles {{ .Env.KIND }} managed resources.
@@ -67,7 +73,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		managed.WithExternalConnecter(&connector{
 			kube:         mgr.GetClient(),
 			usage:        resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
-			newServiceFn: newNoOpService}),
+			newServiceFn: newKeycloakService}),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
 		managed.WithConnectionPublishers(cps...))
@@ -84,7 +90,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 type connector struct {
 	kube         client.Client
 	usage        resource.Tracker
-	newServiceFn func(creds []byte) (interface{}, error)
+	newServiceFn func(creds []byte) (KeycloakService, error)
 }
 
 // Connect typically produces an ExternalClient by:

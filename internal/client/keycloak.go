@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
 	"strconv"
 	"strings"
@@ -20,22 +21,34 @@ type KeycloakConfig struct {
 
 type KeycloakClient struct {
 	client *gocloak.GoCloak
+	token  gocloak.JWT
 	config *KeycloakConfig
 	ctx    context.Context
+}
+
+func NewKeycloakClientFromJson(creds []byte) (*KeycloakClient, error) {
+	var config KeycloakConfig
+	err := json.Unmarshal(creds, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	keycloakClient, err := NewKeycloakClient(config)
+	return keycloakClient, err
 }
 
 func NewKeycloakClient(config KeycloakConfig) (*KeycloakClient, error) {
 	client := gocloak.NewClient(config.Endpoint)
 	ctx := context.Background()
 
-	// Just check if we can get one token
-	_, err := client.LoginAdmin(ctx, config.Username, config.Password, config.Realm)
+	token, err := client.LoginAdmin(ctx, config.Username, config.Password, config.Realm)
 
 	if err != nil {
 		return nil, err
 	} else {
 		return &KeycloakClient{
 			client: client,
+			token:  *token,
 			config: &config,
 			ctx:    ctx,
 		}, nil
@@ -43,14 +56,8 @@ func NewKeycloakClient(config KeycloakConfig) (*KeycloakClient, error) {
 }
 
 func (c KeycloakClient) RealmExists(name string, parameters v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) (bool, resourceUpToDate bool, err error) {
-	var token *gocloak.JWT
-	token, err = c.loginAdmin()
-	if err != nil {
-		return false, false, err
-
-	}
 	var realm *gocloak.RealmRepresentation
-	realm, err = c.client.GetRealm(c.ctx, token.AccessToken, name)
+	realm, err = c.client.GetRealm(c.ctx, c.token.AccessToken, name)
 	if err != nil {
 		return false, false, err
 	}
@@ -59,51 +66,27 @@ func (c KeycloakClient) RealmExists(name string, parameters v1alpha1.RealmParame
 }
 
 func (c KeycloakClient) CreateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) (*string, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
 	if realm.Enabled == nil {
 		enabled := true
 		realm.Enabled = &enabled
 	}
 
 	var id string
-	id, err = c.client.CreateRealm(c.ctx, token.AccessToken, mapRealm(name, realm, config))
+	id, err := c.client.CreateRealm(c.ctx, c.token.AccessToken, mapRealm(name, realm, config))
 
 	return &id, err
 }
 
 func (c KeycloakClient) UpdateRealm(name string, realm v1alpha1.RealmParameters, config *v1alpha1.SmtpConfig) error {
-
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-	representation := mapRealm(name, realm, config)
-
-	return c.client.UpdateRealm(c.ctx, token.AccessToken, representation)
+	return c.client.UpdateRealm(c.ctx, c.token.AccessToken, mapRealm(name, realm, config))
 }
 
 func (c KeycloakClient) DeleteRealm(name string) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-
-	return c.client.DeleteRealm(c.ctx, token.AccessToken, name)
+	return c.client.DeleteRealm(c.ctx, c.token.AccessToken, name)
 }
 
 func (c KeycloakClient) GetClient(realm string, id string) (*v1alpha1.ClientParameters, *string, error) {
-	var token *gocloak.JWT
-	var err error
-	token, err = c.loginAdmin()
-	if err != nil {
-		return nil, nil, err
-
-	}
-	var client *gocloak.Client
-	client, err = c.client.GetClient(c.ctx, token.AccessToken, realm, id)
+	client, err := c.client.GetClient(c.ctx, c.token.AccessToken, realm, id)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -112,22 +95,12 @@ func (c KeycloakClient) GetClient(realm string, id string) (*v1alpha1.ClientPara
 }
 
 func (c KeycloakClient) CreateClient(realm string, id string, client v1alpha1.ClientParameters) (*string, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	newClient := mapClient(id, client)
-	var createdId string
-	createdId, err = c.client.CreateClient(c.ctx, token.AccessToken, realm, newClient)
+	createdId, err := c.client.CreateClient(c.ctx, c.token.AccessToken, realm, mapClient(id, client))
 	return &createdId, err
 }
 
 func (c KeycloakClient) GetUser(realm string, userId string) (*v1alpha1.UserParameters, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	user, err := c.client.GetUserByID(c.ctx, token.AccessToken, realm, userId)
+	user, err := c.client.GetUserByID(c.ctx, c.token.AccessToken, realm, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -139,11 +112,7 @@ func (c KeycloakClient) GetUser(realm string, userId string) (*v1alpha1.UserPara
 }
 
 func (c KeycloakClient) CreateUser(realm string, user v1alpha1.UserParameters) (*string, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	userId, err := c.client.CreateUser(c.ctx, token.AccessToken, realm, mapUser(user))
+	userId, err := c.client.CreateUser(c.ctx, c.token.AccessToken, realm, mapUser(user))
 	return &userId, err
 }
 
@@ -155,29 +124,17 @@ func mapUser(user v1alpha1.UserParameters) gocloak.User {
 }
 
 func (c KeycloakClient) UpdateUser(realm string, userId string, user v1alpha1.UserParameters) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
 	mappedUser := mapUser(user)
 	mappedUser.ID = &userId
-	return c.client.UpdateUser(c.ctx, token.AccessToken, realm, mappedUser)
+	return c.client.UpdateUser(c.ctx, c.token.AccessToken, realm, mappedUser)
 }
 
 func (c KeycloakClient) DeleteUser(realm string, userId string) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-	return c.client.DeleteUser(c.ctx, token.AccessToken, realm, userId)
+	return c.client.DeleteUser(c.ctx, c.token.AccessToken, realm, userId)
 }
 
 func (c KeycloakClient) GetGroup(realm string, groupId string) (*v1alpha1.GroupParameters, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	_, err = c.client.GetGroup(c.ctx, token.AccessToken, realm, groupId)
+	_, err := c.client.GetGroup(c.ctx, c.token.AccessToken, realm, groupId)
 	if err != nil {
 		return nil, err
 	}
@@ -187,11 +144,7 @@ func (c KeycloakClient) GetGroup(realm string, groupId string) (*v1alpha1.GroupP
 }
 
 func (c KeycloakClient) CreateGroup(realm string, name string) (*string, error) {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return nil, err
-	}
-	id, err := c.client.CreateGroup(c.ctx, token.AccessToken, realm, gocloak.Group{
+	id, err := c.client.CreateGroup(c.ctx, c.token.AccessToken, realm, gocloak.Group{
 		Name: &name,
 	})
 
@@ -199,11 +152,7 @@ func (c KeycloakClient) CreateGroup(realm string, name string) (*string, error) 
 }
 
 func (c KeycloakClient) DeleteGroup(realm string, groupId string) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-	return c.client.DeleteGroup(c.ctx, token.AccessToken, realm, groupId)
+	return c.client.DeleteGroup(c.ctx, c.token.AccessToken, realm, groupId)
 }
 
 func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
@@ -344,20 +293,12 @@ func getAsString(attributes map[string]string, attribute string) *string {
 }
 
 func (c KeycloakClient) UpdateClient(realm string, id string, client v1alpha1.ClientParameters) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
 	update := mapClient(id, client)
-	return c.client.UpdateClient(c.ctx, token.AccessToken, realm, update)
+	return c.client.UpdateClient(c.ctx, c.token.AccessToken, realm, update)
 }
 
 func (c KeycloakClient) DeleteClient(realm string, id string) error {
-	var token, err = c.loginAdmin()
-	if err != nil {
-		return err
-	}
-	return c.client.DeleteClient(c.ctx, token.AccessToken, realm, id)
+	return c.client.DeleteClient(c.ctx, c.token.AccessToken, realm, id)
 }
 
 func RealmUpToDate(desiredName string, desiredParameters v1alpha1.RealmParameters, desiredConfig *v1alpha1.SmtpConfig, representation gocloak.RealmRepresentation) bool {
@@ -771,10 +712,6 @@ func mapHeadersBack(representation gocloak.RealmRepresentation) v1alpha1.Headers
 	strictTransportSecurity := headers["strictTransportSecurity"]
 	result.StrictTransportSecurity = &strictTransportSecurity
 	return result
-}
-
-func (c KeycloakClient) loginAdmin() (*gocloak.JWT, error) {
-	return c.client.LoginAdmin(c.ctx, c.config.Username, c.config.Password, c.config.Realm)
 }
 
 func bPointer(i bool) *bool {

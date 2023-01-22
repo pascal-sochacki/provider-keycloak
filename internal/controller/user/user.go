@@ -18,7 +18,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
@@ -55,16 +54,9 @@ type KeycloakService struct {
 
 var (
 	newKeycloakService = func(creds []byte) (KeycloakService, error) {
-
-		var config kc.KeycloakConfig
-		err := json.Unmarshal(creds, &config)
-		if err != nil {
-			return KeycloakService{}, err
-		}
-
-		keycloakClient, err := kc.NewKeycloakClient(config)
+		client, err := kc.NewKeycloakClientFromJson(creds)
 		return KeycloakService{
-			KeycloakClient: keycloakClient,
+			KeycloakClient: client,
 		}, err
 	}
 )
