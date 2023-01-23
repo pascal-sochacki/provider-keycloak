@@ -63,8 +63,10 @@ type ClientParameters struct {
 	StandardFlowEnabled *bool `json:"StandardFlowEnabled"`
 	// +kubebuilder:default=true
 	DirectAccessGrantsEnabled *bool `json:"DirectAccessGrantsEnabled"`
+	// +optional
 	// +kubebuilder:default=false
 	ImplicitFlowEnabled *bool `json:"ImplicitFlowEnabled"`
+	// +optional
 	// +kubebuilder:default=false
 	Oauth2DeviceAuthorizationGrantEnabled *bool `json:"Oauth2DeviceAuthorizationGrantEnabled"`
 	// +kubebuilder:default=false
