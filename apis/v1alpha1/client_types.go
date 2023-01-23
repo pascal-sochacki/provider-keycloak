@@ -50,7 +50,7 @@ type ClientParameters struct {
 	// +optional
 	WebOrigins *[]string `json:"WebOrigins,omitempty"`
 	// +kubebuilder:default=true
-	PublicClient *bool `json:"PublicClient,omitempty,omitempty"`
+	PublicClient *bool `json:"PublicClient,omitempty"`
 	// +kubebuilder:default=false
 	AuthorizationServicesEnabled *bool `json:"AuthorizationServicesEnabled,omitempty"`
 	// +kubebuilder:default=false
