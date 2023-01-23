@@ -145,8 +145,6 @@ spec:
                       type: string
                     type: array
                 required:
-                - DirectAccessGrantsEnabled
-                - Protocol
                 - Realm
                 type: object
                 x-kubernetes-validations:
