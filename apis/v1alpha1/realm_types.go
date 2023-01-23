@@ -111,6 +111,7 @@ type RealmParameters struct {
 	// +kubebuilder:default=false
 	InternationalizationEnabled *bool `json:"internationalizationEnabled,omitempty"`
 
+	// +optional
 	// +kubebuilder:default={XFrameOptions: "SAMEORIGIN", XRobotsTag: "none", ContentSecurityPolicyReportOnly: "", ContentSecurityPolicy: "frame-src 'self'; frame-ancestors 'self'; object-src 'none';", XContentTypeOptions: "nosniff", XXssProtection: "1; mode=block", StrictTransportSecurity: "max-age=31536000; includeSubDomains"}
 	Headers HeadersConfig `json:"headers"`
 	// +optional
