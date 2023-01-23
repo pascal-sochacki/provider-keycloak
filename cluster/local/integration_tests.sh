@@ -173,7 +173,7 @@ echo_step "waiting for provider to be installed"
 
 kubectl wait "provider.pkg.crossplane.io/${PACKAGE_NAME}" --for=condition=healthy --timeout=180s
 
-
+helm repo add codecentric https://codecentric.github.io/helm-charts
 helm install keycloak codecentric/keycloakx --values ${projectdir}/starter/values.yaml
 
 kubectl create secret generic -n crossplane-system keycloak-credentials --from-file=credentials=${projectdir}/examples/provider/credentials_dev.json
