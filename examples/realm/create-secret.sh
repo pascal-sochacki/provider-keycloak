@@ -1,1 +1,0 @@
-kubectl create secret generic smtp-credentials --from-file=credentials=./smtp_credentials.json
