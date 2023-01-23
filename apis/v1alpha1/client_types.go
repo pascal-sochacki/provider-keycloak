@@ -30,61 +30,59 @@ import (
 type ClientParameters struct {
 	Realm string `json:"Realm"`
 	// +kubebuilder:validation:Enum=saml;openid-connect
-	Protocol string `json:"Protocol"`
+	Protocol string `json:"Protocol,omitempty"`
 	// +optional
-	Description *string `json:"Description"`
+	Description *string `json:"Description,omitempty"`
 	// +optional
-	Name *string `json:"Name"`
-	// +optional
-	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
-	RootUrl *string `json:"RootUrl"`
+	Name *string `json:"Name,omitempty"`
 	// +optional
 	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
-	HomeUrl *string `json:"HomeUrl"`
+	RootUrl *string `json:"RootUrl,omitempty"`
 	// +optional
-	ValidRedirectUris *[]string `json:"ValidRedirectUris"`
+	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
+	HomeUrl *string `json:"HomeUrl,omitempty"`
 	// +optional
-	ValidPostLogoutUris *[]string `json:"ValidPostLogoutUris"`
+	ValidRedirectUris *[]string `json:"ValidRedirectUris,omitempty"`
 	// +optional
-	AdminUrl *string `json:"AdminUrl"`
+	ValidPostLogoutUris *[]string `json:"ValidPostLogoutUris,omitempty"`
 	// +optional
-	WebOrigins *[]string `json:"WebOrigins"`
+	AdminUrl *string `json:"AdminUrl,omitempty"`
+	// +optional
+	WebOrigins *[]string `json:"WebOrigins,omitempty"`
 	// +kubebuilder:default=true
-	PublicClient *bool `json:"PublicClient"`
+	PublicClient *bool `json:"PublicClient,omitempty"`
 	// +kubebuilder:default=false
-	AuthorizationServicesEnabled *bool `json:"AuthorizationServicesEnabled"`
+	AuthorizationServicesEnabled *bool `json:"AuthorizationServicesEnabled,omitempty"`
 	// +kubebuilder:default=false
-	ServiceAccountsEnabled *bool `json:"ServiceAccountsEnabled"`
+	ServiceAccountsEnabled *bool `json:"ServiceAccountsEnabled,omitempty"`
 	// +kubebuilder:default=true
-	StandardFlowEnabled *bool `json:"StandardFlowEnabled"`
+	StandardFlowEnabled *bool `json:"StandardFlowEnabled,omitempty"`
 	// +kubebuilder:default=true
-	DirectAccessGrantsEnabled *bool `json:"DirectAccessGrantsEnabled"`
+	DirectAccessGrantsEnabled *bool `json:"DirectAccessGrantsEnabled,omitempty"`
 	// +kubebuilder:default=false
-	ImplicitFlowEnabled *bool `json:"ImplicitFlowEnabled"`
+	ImplicitFlowEnabled *bool `json:"ImplicitFlowEnabled,omitempty"`
 	// +kubebuilder:default=false
-	Oauth2DeviceAuthorizationGrantEnabled *bool `json:"Oauth2DeviceAuthorizationGrantEnabled"`
+	Oauth2DeviceAuthorizationGrantEnabled *bool `json:"Oauth2DeviceAuthorizationGrantEnabled,omitempty"`
 	// +kubebuilder:default=false
-	OidcCibaGrantEnabled *bool `json:"OidcCibaGrantEnabled"`
+	OidcCibaGrantEnabled *bool `json:"OidcCibaGrantEnabled,omitempty"`
 	// +optional
-	LoginTheme *string `json:"LoginTheme"`
+	LoginTheme *string `json:"LoginTheme,omitempty"`
 	// +kubebuilder:default=false
-	ConsentRequired *bool `json:"ConsentRequired"`
+	ConsentRequired *bool `json:"ConsentRequired,omitempty"`
 	// +kubebuilder:default=false
-	DisplayClientOnConsentScreen *bool `json:"DisplayClientOnConsentScreen"`
+	DisplayClientOnConsentScreen *bool `json:"DisplayClientOnConsentScreen,omitempty"`
 	// +optional
-	MessageOnConsentScreen *string `json:"MessageOnConsentScreen"`
+	MessageOnConsentScreen *string `json:"MessageOnConsentScreen,omitempty"`
 	// +kubebuilder:default=false
-	FrontChannelLogout *bool `json:"FrontChannelLogout"`
-	// +optional
+	FrontChannelLogout *bool `json:"FrontChannelLogout,omitempty"`
 	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
-	FrontChannelLogoutUrl *string `json:"FrontChannelLogoutUrl"`
-	// +optional
+	FrontChannelLogoutUrl *string `json:"FrontChannelLogoutUrl,omitempty"`
 	// +kubebuilder:validation:Pattern=`^https?:\/\/.+$`
-	BackChannelLogoutUrl *string `json:"BackChannelLogoutUrl"`
+	BackChannelLogoutUrl *string `json:"BackChannelLogoutUrl,omitempty"`
 	// +kubebuilder:default=false
-	BackChannelLogoutSessionRequired *bool `json:"BackChannelLogoutSessionRequired"`
+	BackChannelLogoutSessionRequired *bool `json:"BackChannelLogoutSessionRequired,omitempty"`
 	// +kubebuilder:default=false
-	BackchannelLogoutRevokeOfflineTokens *bool `json:"BackchannelLogoutRevokeOfflineTokens"`
+	BackchannelLogoutRevokeOfflineTokens *bool `json:"BackchannelLogoutRevokeOfflineTokens,omitempty"`
 }
 
 // ClientObservation are the observable fields of a Client.

@@ -499,8 +499,6 @@ spec:
                   verifyEmail:
                     default: false
                     type: boolean
-                required:
-                - headers
                 type: object
               providerConfigRef:
                 default:

@@ -19,6 +19,8 @@ package user
 import (
 	"context"
 
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -150,7 +152,9 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 	equal := cmp.Equal(*user, parameters)
 	var diff = ""
-	if !equal {
+	if equal {
+		cr.Status.SetConditions(xpv1.Available())
+	} else {
 		diff = cmp.Diff(*user, parameters)
 	}
 

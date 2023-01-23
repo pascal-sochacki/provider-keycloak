@@ -145,21 +145,7 @@ spec:
                       type: string
                     type: array
                 required:
-                - AuthorizationServicesEnabled
-                - BackChannelLogoutSessionRequired
-                - BackchannelLogoutRevokeOfflineTokens
-                - ConsentRequired
-                - DirectAccessGrantsEnabled
-                - DisplayClientOnConsentScreen
-                - FrontChannelLogout
-                - ImplicitFlowEnabled
-                - Oauth2DeviceAuthorizationGrantEnabled
-                - OidcCibaGrantEnabled
-                - Protocol
-                - PublicClient
                 - Realm
-                - ServiceAccountsEnabled
-                - StandardFlowEnabled
                 type: object
                 x-kubernetes-validations:
                 - rule: '!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled

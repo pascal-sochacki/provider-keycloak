@@ -173,6 +173,35 @@ echo_step "waiting for provider to be installed"
 
 kubectl wait "provider.pkg.crossplane.io/${PACKAGE_NAME}" --for=condition=healthy --timeout=180s
 
+helm repo add codecentric https://codecentric.github.io/helm-charts
+helm install keycloak codecentric/keycloakx --values ${projectdir}/starter/values.yaml
+
+kubectl create secret generic -n crossplane-system keycloak-credentials --from-file=credentials=${projectdir}/examples/provider/credentials.json
+kubectl apply -f ${projectdir}/examples/provider/config.yaml
+sleep 10
+
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=keycloak --timeout=-1s
+
+echo_step "installing realms"
+kubectl apply -f ${projectdir}/examples/realm
+echo_step "waiting for realm to be ready"
+kubectl wait --timeout 2m --for condition=Ready realm.keycloak.crossplane.io --all
+
+echo_step "installing clients"
+kubectl apply -f ${projectdir}/examples/client
+echo_step "waiting for clients to be ready"
+kubectl wait --timeout 2m --for condition=Ready client.keycloak.crossplane.io --all
+
+echo_step "installing users"
+kubectl apply -f ${projectdir}/examples/user
+echo_step "waiting for user to be ready"
+kubectl wait --timeout 2m --for condition=Ready user.keycloak.crossplane.io --all
+
+echo_step "installing group"
+kubectl apply -f ${projectdir}/examples/group
+echo_step "waiting for group to be ready"
+kubectl wait --timeout 2m --for condition=Ready group.keycloak.crossplane.io --all
+
 echo_step "uninstalling ${PROJECT_NAME}"
 
 echo "${INSTALL_YAML}" | "${KUBECTL}" delete -f -
