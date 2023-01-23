@@ -152,10 +152,10 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 	equal := cmp.Equal(*user, parameters)
 	var diff = ""
-	if !equal {
-		diff = cmp.Diff(*user, parameters)
-	} else {
+	if equal {
 		cr.Status.SetConditions(xpv1.Available())
+	} else {
+		diff = cmp.Diff(*user, parameters)
 	}
 
 	return managed.ExternalObservation{
