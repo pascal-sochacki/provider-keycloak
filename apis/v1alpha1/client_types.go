@@ -51,6 +51,7 @@ type ClientParameters struct {
 	WebOrigins *[]string `json:"WebOrigins"`
 	// +kubebuilder:default=true
 	PublicClient *bool `json:"PublicClient"`
+	// +optional
 	// +kubebuilder:default=false
 	AuthorizationServicesEnabled *bool `json:"AuthorizationServicesEnabled"`
 	// +kubebuilder:default=false

@@ -145,7 +145,6 @@ spec:
                       type: string
                     type: array
                 required:
-                - AuthorizationServicesEnabled
                 - BackChannelLogoutSessionRequired
                 - BackchannelLogoutRevokeOfflineTokens
                 - ConsentRequired
