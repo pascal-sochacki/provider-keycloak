@@ -183,6 +183,7 @@ sleep 10
 kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=keycloak --timeout=-1s
 
 kubectl apply -f ${projectdir}/examples/realm
+kubectl wait --timeout 2m --for condition=Ready -f ${projectdir}/examples/realm/
 
 echo_step "uninstalling ${PROJECT_NAME}"
 
