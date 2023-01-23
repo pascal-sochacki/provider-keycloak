@@ -146,8 +146,6 @@ spec:
                     type: array
                 required:
                 - DirectAccessGrantsEnabled
-                - ImplicitFlowEnabled
-                - Oauth2DeviceAuthorizationGrantEnabled
                 - Protocol
                 - Realm
                 type: object
