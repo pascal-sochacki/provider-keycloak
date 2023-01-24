@@ -162,6 +162,7 @@ func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 		ID:       &id,
 		ClientID: &id,
 
+		ClientAuthenticatorType:      &client.ClientAuthenticatorType,
 		Name:                         client.Name,
 		Protocol:                     &client.Protocol,
 		Description:                  client.Description,
@@ -221,7 +222,8 @@ func createAttributes(client v1alpha1.ClientParameters) map[string]string {
 
 func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
 	result = v1alpha1.ClientParameters{
-		Realm: realm,
+		Realm:                   realm,
+		ClientAuthenticatorType: *client.ClientAuthenticatorType,
 
 		Name:                         client.Name,
 		Protocol:                     *client.Protocol,

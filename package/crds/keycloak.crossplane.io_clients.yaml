@@ -78,6 +78,13 @@ spec:
                   BackchannelLogoutRevokeOfflineTokens:
                     default: false
                     type: boolean
+                  ClientAuthenticatorType:
+                    enum:
+                    - client-secret
+                    - client-x509
+                    - client-jwt
+                    - client-secret-jwt
+                    type: string
                   ConsentRequired:
                     default: false
                     type: boolean
@@ -150,6 +157,8 @@ spec:
                 x-kubernetes-validations:
                 - rule: '!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled
                     && self.ServiceAccountsEnabled)'
+                - rule: (self.PublicClient && !has(self.ClientAuthenticatorType))
+                    ||(!self.PublicClient && has(self.ClientAuthenticatorType))
               providerConfigRef:
                 default:
                   name: default
