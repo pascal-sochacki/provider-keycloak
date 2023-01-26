@@ -9,5 +9,5 @@ spec:
     PublicClient: false
     ClientAuthenticatorType: client-x509
   writeConnectionSecretToRef:
-    name: openid-examppple-secret
+    name: openid-x509-secret
     namespace: default
