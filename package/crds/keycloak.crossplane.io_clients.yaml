@@ -157,8 +157,8 @@ spec:
                 x-kubernetes-validations:
                 - rule: '!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled
                     && self.ServiceAccountsEnabled)'
-                - rule: (self.PublicClient && !has(self.ClientAuthenticatorType))
-                    ||(!self.PublicClient && has(self.ClientAuthenticatorType))
+                - rule: (self.Protocol == 'saml') || (self.PublicClient && !has(self.ClientAuthenticatorType))
+                    || (!self.PublicClient && has(self.ClientAuthenticatorType))
               providerConfigRef:
                 default:
                   name: default

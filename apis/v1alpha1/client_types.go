@@ -27,12 +27,12 @@ import (
 
 // ClientParameters are the configurable fields of a Client.
 // +kubebuilder:validation:XValidation:rule="!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled && self.ServiceAccountsEnabled)"
-// +kubebuilder:validation:XValidation:rule="(self.PublicClient && !has(self.ClientAuthenticatorType)) ||(!self.PublicClient && has(self.ClientAuthenticatorType))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.PublicClient && !has(self.ClientAuthenticatorType)) || (!self.PublicClient && has(self.ClientAuthenticatorType))"
 type ClientParameters struct {
 	Realm string `json:"Realm"`
 	// +optional
 	// +kubebuilder:validation:Enum=client-secret;client-x509;client-jwt;client-secret-jwt
-	ClientAuthenticatorType string `json:"ClientAuthenticatorType"`
+	ClientAuthenticatorType *string `json:"ClientAuthenticatorType"`
 	// +kubebuilder:validation:Enum=saml;openid-connect
 	Protocol string `json:"Protocol,omitempty"`
 	// +optional

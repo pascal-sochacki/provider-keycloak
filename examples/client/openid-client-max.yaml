@@ -19,7 +19,7 @@ spec:
     WebOrigins:
       - www.example7.de
       - www.example8.de
-    PublicClient: false
+    PublicClient: true
     AuthorizationServicesEnabled: false
     ServiceAccountsEnabled: true
     StandardFlowEnabled: false
