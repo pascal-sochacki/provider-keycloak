@@ -195,8 +195,23 @@ func (in *ClientParameters) DeepCopyInto(out *ClientParameters) {
 			copy(*out, *in)
 		}
 	}
+	if in.SamlIdpInitiatedSsoRelayState != nil {
+		in, out := &in.SamlIdpInitiatedSsoRelayState, &out.SamlIdpInitiatedSsoRelayState
+		*out = new(string)
+		**out = **in
+	}
+	if in.SamlIdpInitiatedSsoUrlName != nil {
+		in, out := &in.SamlIdpInitiatedSsoUrlName, &out.SamlIdpInitiatedSsoUrlName
+		*out = new(string)
+		**out = **in
+	}
 	if in.AdminUrl != nil {
 		in, out := &in.AdminUrl, &out.AdminUrl
+		*out = new(string)
+		**out = **in
+	}
+	if in.SamlNameIdFormat != nil {
+		in, out := &in.SamlNameIdFormat, &out.SamlNameIdFormat
 		*out = new(string)
 		**out = **in
 	}

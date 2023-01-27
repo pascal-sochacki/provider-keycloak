@@ -29,6 +29,9 @@ spec:
     - jsonPath: .metadata.annotations.crossplane\.io/external-name
       name: EXTERNAL-NAME
       type: string
+    - jsonPath: .spec.forProvider.Realm
+      name: REALM
+      type: string
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
@@ -133,6 +136,17 @@ spec:
                   RootUrl:
                     pattern: ^https?:\/\/.+$
                     type: string
+                  SamlIdpInitiatedSsoRelayState:
+                    type: string
+                  SamlIdpInitiatedSsoUrlName:
+                    type: string
+                  SamlNameIdFormat:
+                    enum:
+                    - username
+                    - email
+                    - transient
+                    - persistent
+                    type: string
                   ServiceAccountsEnabled:
                     default: false
                     type: boolean
@@ -159,6 +173,9 @@ spec:
                     && self.ServiceAccountsEnabled)'
                 - rule: (self.Protocol == 'saml') || (self.PublicClient && !has(self.ClientAuthenticatorType))
                     || (!self.PublicClient && has(self.ClientAuthenticatorType))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoUrlName))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoRelayState))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlNameIdFormat))
               providerConfigRef:
                 default:
                   name: default

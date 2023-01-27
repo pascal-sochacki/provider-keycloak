@@ -183,43 +183,6 @@ func mapClient(id string, client v1alpha1.ClientParameters) gocloak.Client {
 	}
 }
 
-//nolint:all
-func createAttributes(client v1alpha1.ClientParameters) map[string]string {
-	var attributes = map[string]string{}
-
-	if client.ValidPostLogoutUris != nil {
-		attributes["post.logout.redirect.uris"] = strings.Join(*client.ValidPostLogoutUris, "##")
-	}
-	if client.Oauth2DeviceAuthorizationGrantEnabled != nil {
-		attributes["oauth2.device.authorization.grant.enabled"] = strconv.FormatBool(*client.Oauth2DeviceAuthorizationGrantEnabled)
-	}
-	if client.OidcCibaGrantEnabled != nil {
-		attributes["oidc.ciba.grant.enabled"] = strconv.FormatBool(*client.OidcCibaGrantEnabled)
-	}
-	if client.LoginTheme != nil {
-		attributes["login_theme"] = *client.LoginTheme
-	}
-	if client.DisplayClientOnConsentScreen != nil {
-		attributes["display.on.consent.screen"] = strconv.FormatBool(*client.DisplayClientOnConsentScreen)
-	}
-	if client.MessageOnConsentScreen != nil {
-		attributes["consent.screen.text"] = *client.MessageOnConsentScreen
-	}
-	if client.FrontChannelLogoutUrl != nil {
-		attributes["frontchannel.logout.url"] = *client.FrontChannelLogoutUrl
-	}
-	if client.BackChannelLogoutUrl != nil {
-		attributes["backchannel.logout.url"] = *client.BackChannelLogoutUrl
-	}
-	if client.BackChannelLogoutSessionRequired != nil {
-		attributes["backchannel.logout.session.required"] = strconv.FormatBool(*client.BackChannelLogoutSessionRequired)
-	}
-	if client.BackchannelLogoutRevokeOfflineTokens != nil {
-		attributes["backchannel.logout.revoke.offline.tokens"] = strconv.FormatBool(*client.BackchannelLogoutRevokeOfflineTokens)
-	}
-	return attributes
-}
-
 func mapClientBack(client gocloak.Client, realm string) (id string, result v1alpha1.ClientParameters) {
 	result = v1alpha1.ClientParameters{
 		Realm:                   realm,
@@ -257,24 +220,93 @@ func mapClientBack(client gocloak.Client, realm string) (id string, result v1alp
 
 	attributes := *client.Attributes
 	if attributes != nil {
-
-		if uriString, found := attributes["post.logout.redirect.uris"]; found {
-			urisplit := strings.Split(uriString, "##")
-			result.ValidPostLogoutUris = &urisplit
-		}
-
-		result.Oauth2DeviceAuthorizationGrantEnabled = getAsBool(attributes, "oauth2.device.authorization.grant.enabled")
-		result.OidcCibaGrantEnabled = getAsBool(attributes, "oidc.ciba.grant.enabled")
-		result.LoginTheme = getAsString(attributes, "login_theme")
-		result.DisplayClientOnConsentScreen = getAsBool(attributes, "display.on.consent.screen")
-		result.MessageOnConsentScreen = getAsString(attributes, "consent.screen.text")
-		result.FrontChannelLogoutUrl = getAsString(attributes, "frontchannel.logout.url")
-		result.BackChannelLogoutUrl = getAsString(attributes, "backchannel.logout.url")
-		result.BackChannelLogoutSessionRequired = getAsBool(attributes, "backchannel.logout.session.required")
-		result.BackchannelLogoutRevokeOfflineTokens = getAsBool(attributes, "backchannel.logout.revoke.offline.tokens")
+		setAttributes(attributes, result)
 	}
 
 	return *client.ClientID, result
+}
+
+const (
+	ValidPostLogoutUris                   = "post.logout.redirect.uris"
+	Oauth2DeviceAuthorizationGrantEnabled = "oauth2.device.authorization.grant.enabled"
+	OidcCibaGrantEnabled                  = "oidc.ciba.grant.enabled"
+	LoginTheme                            = "login_theme"
+	DisplayClientOnConsentScreen          = "display.on.consent.screen"
+	MessageOnConsentScreen                = "consent.screen.text"
+	FrontChannelLogoutUrl                 = "frontchannel.logout.url"
+	BackChannelLogoutUrl                  = "backchannel.logout.url"
+	BackChannelLogoutSessionRequired      = "backchannel.logout.session.required"
+	BackchannelLogoutRevokeOfflineTokens  = "backchannel.logout.revoke.offline.tokens"
+
+	SamlIdpInitiatedSsoUrlName    = "saml_idp_initiated_sso_url_name"
+	SamlIdpInitiatedSsoRelayState = "saml_idp_initiated_sso_relay_state"
+	SamlNameIdFormat              = "saml_name_id_format"
+)
+
+func setAttributes(attributes map[string]string, result v1alpha1.ClientParameters) {
+	if uriString, found := attributes[ValidPostLogoutUris]; found {
+		urisplit := strings.Split(uriString, "##")
+		result.ValidPostLogoutUris = &urisplit
+	}
+
+	result.Oauth2DeviceAuthorizationGrantEnabled = getAsBool(attributes, Oauth2DeviceAuthorizationGrantEnabled)
+	result.OidcCibaGrantEnabled = getAsBool(attributes, OidcCibaGrantEnabled)
+	result.LoginTheme = getAsString(attributes, LoginTheme)
+	result.DisplayClientOnConsentScreen = getAsBool(attributes, DisplayClientOnConsentScreen)
+	result.MessageOnConsentScreen = getAsString(attributes, MessageOnConsentScreen)
+	result.FrontChannelLogoutUrl = getAsString(attributes, FrontChannelLogoutUrl)
+	result.BackChannelLogoutUrl = getAsString(attributes, BackChannelLogoutUrl)
+	result.BackChannelLogoutSessionRequired = getAsBool(attributes, BackChannelLogoutSessionRequired)
+	result.BackchannelLogoutRevokeOfflineTokens = getAsBool(attributes, BackchannelLogoutRevokeOfflineTokens)
+	result.SamlIdpInitiatedSsoUrlName = getAsString(attributes, SamlIdpInitiatedSsoUrlName)
+	result.SamlIdpInitiatedSsoRelayState = getAsString(attributes, SamlIdpInitiatedSsoRelayState)
+	result.SamlNameIdFormat = getAsString(attributes, SamlNameIdFormat)
+}
+
+//nolint:all
+func createAttributes(client v1alpha1.ClientParameters) map[string]string {
+	var attributes = map[string]string{}
+
+	if client.ValidPostLogoutUris != nil {
+		attributes[ValidPostLogoutUris] = strings.Join(*client.ValidPostLogoutUris, "##")
+	}
+	if client.Oauth2DeviceAuthorizationGrantEnabled != nil {
+		attributes[Oauth2DeviceAuthorizationGrantEnabled] = strconv.FormatBool(*client.Oauth2DeviceAuthorizationGrantEnabled)
+	}
+	if client.OidcCibaGrantEnabled != nil {
+		attributes[OidcCibaGrantEnabled] = strconv.FormatBool(*client.OidcCibaGrantEnabled)
+	}
+	if client.LoginTheme != nil {
+		attributes[LoginTheme] = *client.LoginTheme
+	}
+	if client.DisplayClientOnConsentScreen != nil {
+		attributes[DisplayClientOnConsentScreen] = strconv.FormatBool(*client.DisplayClientOnConsentScreen)
+	}
+	if client.MessageOnConsentScreen != nil {
+		attributes[MessageOnConsentScreen] = *client.MessageOnConsentScreen
+	}
+	if client.FrontChannelLogoutUrl != nil {
+		attributes[FrontChannelLogoutUrl] = *client.FrontChannelLogoutUrl
+	}
+	if client.BackChannelLogoutUrl != nil {
+		attributes[BackChannelLogoutUrl] = *client.BackChannelLogoutUrl
+	}
+	if client.BackChannelLogoutSessionRequired != nil {
+		attributes[BackChannelLogoutSessionRequired] = strconv.FormatBool(*client.BackChannelLogoutSessionRequired)
+	}
+	if client.BackchannelLogoutRevokeOfflineTokens != nil {
+		attributes[BackchannelLogoutRevokeOfflineTokens] = strconv.FormatBool(*client.BackchannelLogoutRevokeOfflineTokens)
+	}
+	if client.SamlIdpInitiatedSsoUrlName != nil {
+		attributes[SamlIdpInitiatedSsoUrlName] = *client.SamlIdpInitiatedSsoUrlName
+	}
+	if client.SamlIdpInitiatedSsoRelayState != nil {
+		attributes[SamlIdpInitiatedSsoRelayState] = *client.SamlIdpInitiatedSsoRelayState
+	}
+	if client.SamlNameIdFormat != nil {
+		attributes[SamlNameIdFormat] = *client.SamlNameIdFormat
+	}
+	return attributes
 }
 
 func getAsBool(attributes map[string]string, attribute string) *bool {
