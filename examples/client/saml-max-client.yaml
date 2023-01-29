@@ -19,6 +19,12 @@ spec:
     SamlIdpInitiatedSsoUrlName: www.SamlIdpInitiatedSsoUrlName.de
     SamlNameIdFormat: persistent
     AdminUrl: www.adminUrl.de
+    SamlForceNameIdFormat: true
+    SamlForcePostBinding: true
+    SamlArtifactBinding: true
+    SamlAuthnstatement: true
+    SamlOnetimeuseCondition: true
+    SamlServerSignatureKeyinfoExt: true
   writeConnectionSecretToRef:
     name: saml-example-max-secret
     namespace: default

@@ -215,6 +215,36 @@ func (in *ClientParameters) DeepCopyInto(out *ClientParameters) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.SamlForceNameIdFormat != nil {
+		in, out := &in.SamlForceNameIdFormat, &out.SamlForceNameIdFormat
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SamlForcePostBinding != nil {
+		in, out := &in.SamlForcePostBinding, &out.SamlForcePostBinding
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SamlArtifactBinding != nil {
+		in, out := &in.SamlArtifactBinding, &out.SamlArtifactBinding
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SamlAuthnstatement != nil {
+		in, out := &in.SamlAuthnstatement, &out.SamlAuthnstatement
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SamlOnetimeuseCondition != nil {
+		in, out := &in.SamlOnetimeuseCondition, &out.SamlOnetimeuseCondition
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SamlServerSignatureKeyinfoExt != nil {
+		in, out := &in.SamlServerSignatureKeyinfoExt, &out.SamlServerSignatureKeyinfoExt
+		*out = new(bool)
+		**out = **in
+	}
 	if in.WebOrigins != nil {
 		in, out := &in.WebOrigins, &out.WebOrigins
 		*out = new([]string)

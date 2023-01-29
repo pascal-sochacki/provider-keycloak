@@ -117,6 +117,12 @@ const (
 	SamlIdpInitiatedSsoUrlName    = "saml_idp_initiated_sso_url_name"
 	SamlIdpInitiatedSsoRelayState = "saml_idp_initiated_sso_relay_state"
 	SamlNameIdFormat              = "saml_name_id_format"
+	SamlForceNameIdFormat         = "saml.force.name.id.format"
+	SamlForcePostBinding          = "saml.force.post.binding"
+	SamlArtifactBinding           = "saml.artifact.binding"
+	SamlAuthnstatement            = "saml.authnstatement"
+	SamlOnetimeuseCondition       = "saml.onetimeuse.condition"
+	SamlServerSignatureKeyinfoExt = "saml.server.signature.keyinfo.ext"
 )
 
 func setAttributes(attributes map[string]string, result v1alpha1.ClientParameters) {
@@ -137,6 +143,12 @@ func setAttributes(attributes map[string]string, result v1alpha1.ClientParameter
 	result.SamlIdpInitiatedSsoUrlName = getAsString(attributes, SamlIdpInitiatedSsoUrlName)
 	result.SamlIdpInitiatedSsoRelayState = getAsString(attributes, SamlIdpInitiatedSsoRelayState)
 	result.SamlNameIdFormat = getAsString(attributes, SamlNameIdFormat)
+	result.SamlForceNameIdFormat = getAsBool(attributes, SamlForceNameIdFormat)
+	result.SamlForcePostBinding = getAsBool(attributes, SamlForcePostBinding)
+	result.SamlArtifactBinding = getAsBool(attributes, SamlArtifactBinding)
+	result.SamlAuthnstatement = getAsBool(attributes, SamlAuthnstatement)
+	result.SamlOnetimeuseCondition = getAsBool(attributes, SamlOnetimeuseCondition)
+	result.SamlServerSignatureKeyinfoExt = getAsBool(attributes, SamlServerSignatureKeyinfoExt)
 }
 
 //nolint:all
@@ -181,6 +193,24 @@ func createAttributes(client v1alpha1.ClientParameters) map[string]string {
 	}
 	if client.SamlNameIdFormat != nil {
 		attributes[SamlNameIdFormat] = *client.SamlNameIdFormat
+	}
+	if client.SamlForceNameIdFormat != nil {
+		attributes[SamlForceNameIdFormat] = strconv.FormatBool(*client.SamlForceNameIdFormat)
+	}
+	if client.SamlForcePostBinding != nil {
+		attributes[SamlForcePostBinding] = strconv.FormatBool(*client.SamlForcePostBinding)
+	}
+	if client.SamlArtifactBinding != nil {
+		attributes[SamlArtifactBinding] = strconv.FormatBool(*client.SamlArtifactBinding)
+	}
+	if client.SamlAuthnstatement != nil {
+		attributes[SamlAuthnstatement] = strconv.FormatBool(*client.SamlAuthnstatement)
+	}
+	if client.SamlOnetimeuseCondition != nil {
+		attributes[SamlOnetimeuseCondition] = strconv.FormatBool(*client.SamlOnetimeuseCondition)
+	}
+	if client.SamlServerSignatureKeyinfoExt != nil {
+		attributes[SamlServerSignatureKeyinfoExt] = strconv.FormatBool(*client.SamlServerSignatureKeyinfoExt)
 	}
 	return attributes
 }

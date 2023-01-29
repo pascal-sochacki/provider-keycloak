@@ -31,6 +31,11 @@ import (
 // +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoUrlName))"
 // +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoRelayState))"
 // +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlNameIdFormat))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlForcePostBinding))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlArtifactBinding))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlAuthnstatement))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlOnetimeuseCondition))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlServerSignatureKeyinfoExt))"
 type ClientParameters struct {
 	Realm string `json:"Realm"`
 	// +optional
@@ -61,6 +66,18 @@ type ClientParameters struct {
 	// +optional
 	// +kubebuilder:validation:Enum=username;email;transient;persistent
 	SamlNameIdFormat *string `json:"SamlNameIdFormat,omitempty"`
+	// +optional
+	SamlForceNameIdFormat *bool `json:"SamlForceNameIdFormat,omitempty"`
+	// +optional
+	SamlForcePostBinding *bool `json:"SamlForcePostBinding,omitempty"`
+	// +optional
+	SamlArtifactBinding *bool `json:"SamlArtifactBinding,omitempty"`
+	// +optional
+	SamlAuthnstatement *bool `json:"SamlAuthnstatement,omitempty"`
+	// +optional
+	SamlOnetimeuseCondition *bool `json:"SamlOnetimeuseCondition,omitempty"`
+	// +optional
+	SamlServerSignatureKeyinfoExt *bool `json:"SamlServerSignatureKeyinfoExt,omitempty"`
 	// +optional
 	WebOrigins *[]string `json:"WebOrigins,omitempty"`
 	// +kubebuilder:default=true

@@ -136,6 +136,14 @@ spec:
                   RootUrl:
                     pattern: ^https?:\/\/.+$
                     type: string
+                  SamlArtifactBinding:
+                    type: boolean
+                  SamlAuthnstatement:
+                    type: boolean
+                  SamlForceNameIdFormat:
+                    type: boolean
+                  SamlForcePostBinding:
+                    type: boolean
                   SamlIdpInitiatedSsoRelayState:
                     type: string
                   SamlIdpInitiatedSsoUrlName:
@@ -147,6 +155,10 @@ spec:
                     - transient
                     - persistent
                     type: string
+                  SamlOnetimeuseCondition:
+                    type: boolean
+                  SamlServerSignatureKeyinfoExt:
+                    type: boolean
                   ServiceAccountsEnabled:
                     default: false
                     type: boolean
@@ -176,6 +188,11 @@ spec:
                 - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoUrlName))
                 - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoRelayState))
                 - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlNameIdFormat))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlForcePostBinding))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlArtifactBinding))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlAuthnstatement))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlOnetimeuseCondition))
+                - rule: (self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlServerSignatureKeyinfoExt))
               providerConfigRef:
                 default:
                   name: default
