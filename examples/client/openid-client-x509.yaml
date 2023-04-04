@@ -1,0 +1,13 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: openid-x509
+spec:
+  forProvider:
+    Realm: example
+    Protocol: openid-connect
+    PublicClient: false
+    ClientAuthenticatorType: client-x509
+  writeConnectionSecretToRef:
+    name: openid-x509-secret
+    namespace: default

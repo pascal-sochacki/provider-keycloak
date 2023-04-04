@@ -172,7 +172,7 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalCreation{}, errors.New(errNotUser)
 	}
 
-	userId, err := c.service.KeycloakClient.CreateUser(cr.Spec.ForProvider.Realm, cr.Spec.ForProvider)
+	userId, err := c.service.KeycloakClient.CreateUser(cr.Spec.ForProvider)
 	if err != nil {
 		return managed.ExternalCreation{
 			ConnectionDetails: managed.ConnectionDetails{},
@@ -194,7 +194,7 @@ func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalUpdate{}, errors.New(errNotUser)
 	}
 
-	err := c.service.KeycloakClient.UpdateUser(cr.Spec.ForProvider.Realm, meta.GetExternalName(cr), cr.Spec.ForProvider)
+	err := c.service.KeycloakClient.UpdateUser(meta.GetExternalName(cr), cr.Spec.ForProvider)
 
 	return managed.ExternalUpdate{
 		ConnectionDetails: managed.ConnectionDetails{},

@@ -1,0 +1,30 @@
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: saml-example-max
+spec:
+  forProvider:
+    Realm: example
+    Protocol: saml
+    Name: saml-example-max
+    Description: This is a description for the client
+    RootUrl: http://www.example1.de
+    HomeUrl: http://www.example2.de
+    ValidRedirectUris:
+      - www.example3.de
+      - www.example4.de
+    ValidPostLogoutUris:
+      - www.example5.de
+    SamlIdpInitiatedSsoRelayState: www.SamlIdpInitiatedSsoRelayState.de
+    SamlIdpInitiatedSsoUrlName: www.SamlIdpInitiatedSsoUrlName.de
+    SamlNameIdFormat: persistent
+    AdminUrl: www.adminUrl.de
+    SamlForceNameIdFormat: true
+    SamlForcePostBinding: true
+    SamlArtifactBinding: true
+    SamlAuthnstatement: true
+    SamlOnetimeuseCondition: true
+    SamlServerSignatureKeyinfoExt: true
+  writeConnectionSecretToRef:
+    name: saml-example-max-secret
+    namespace: default

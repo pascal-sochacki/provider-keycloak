@@ -27,8 +27,20 @@ import (
 
 // ClientParameters are the configurable fields of a Client.
 // +kubebuilder:validation:XValidation:rule="!self.AuthorizationServicesEnabled || (self.AuthorizationServicesEnabled && self.ServiceAccountsEnabled)"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.PublicClient && !has(self.ClientAuthenticatorType)) || (!self.PublicClient && has(self.ClientAuthenticatorType))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoUrlName))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlIdpInitiatedSsoRelayState))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlNameIdFormat))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlForcePostBinding))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlArtifactBinding))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlAuthnstatement))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlOnetimeuseCondition))"
+// +kubebuilder:validation:XValidation:rule="(self.Protocol == 'saml') || (self.Protocol != 'saml' && !has(self.SamlServerSignatureKeyinfoExt))"
 type ClientParameters struct {
 	Realm string `json:"Realm"`
+	// +optional
+	// +kubebuilder:validation:Enum=client-secret;client-x509;client-jwt;client-secret-jwt
+	ClientAuthenticatorType *string `json:"ClientAuthenticatorType"`
 	// +kubebuilder:validation:Enum=saml;openid-connect
 	Protocol string `json:"Protocol,omitempty"`
 	// +optional
@@ -46,7 +58,26 @@ type ClientParameters struct {
 	// +optional
 	ValidPostLogoutUris *[]string `json:"ValidPostLogoutUris,omitempty"`
 	// +optional
+	SamlIdpInitiatedSsoRelayState *string `json:"SamlIdpInitiatedSsoRelayState,omitempty"`
+	// +optional
+	SamlIdpInitiatedSsoUrlName *string `json:"SamlIdpInitiatedSsoUrlName,omitempty"`
+	// +optional
 	AdminUrl *string `json:"AdminUrl,omitempty"`
+	// +optional
+	// +kubebuilder:validation:Enum=username;email;transient;persistent
+	SamlNameIdFormat *string `json:"SamlNameIdFormat,omitempty"`
+	// +optional
+	SamlForceNameIdFormat *bool `json:"SamlForceNameIdFormat,omitempty"`
+	// +optional
+	SamlForcePostBinding *bool `json:"SamlForcePostBinding,omitempty"`
+	// +optional
+	SamlArtifactBinding *bool `json:"SamlArtifactBinding,omitempty"`
+	// +optional
+	SamlAuthnstatement *bool `json:"SamlAuthnstatement,omitempty"`
+	// +optional
+	SamlOnetimeuseCondition *bool `json:"SamlOnetimeuseCondition,omitempty"`
+	// +optional
+	SamlServerSignatureKeyinfoExt *bool `json:"SamlServerSignatureKeyinfoExt,omitempty"`
 	// +optional
 	WebOrigins *[]string `json:"WebOrigins,omitempty"`
 	// +kubebuilder:default=true
@@ -108,6 +139,7 @@ type ClientStatus struct {
 // +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
+// +kubebuilder:printcolumn:name="REALM",type="string",JSONPath=".spec.forProvider.Realm"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,keycloak}
